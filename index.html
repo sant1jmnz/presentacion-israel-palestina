@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>El olivo recuerda · Israel y Palestina</title>
+</head>
+<body data-era="tierra">
+  <div id="era">
+    <div class="era-layer" data-layer="tierra"></div>
+    <div class="era-layer" data-layer="mandato"></div>
+    <div class="era-layer" data-layer="ceniza"></div>
+    <div class="era-layer" data-layer="setenta"></div>
+    <div class="era-layer" data-layer="hoy"></div>
+    <div class="era-layer" data-layer="silencio"></div>
+    <div class="era-layer" data-layer="alba"></div>
+    <div class="grain"></div>
+  </div>
+  <canvas id="olive"></canvas>
+  <button id="soundBtn" aria-label="Activar o silenciar el sonido"></button>
+  <button id="oliveTouch" aria-label="Tocar el olivo"></button>
+  <p id="whisper"></p>
+
+  <div class="reveal"><div class="slides">
+
+  <!-- ==================== 1. LA TIERRA ==================== -->
+  <section data-era="tierra" data-olive="portada" data-sound="viento:.14 pajaros:.1" class="cover">
+    <div class="s">
+      <p class="kicker a">Israel y Palestina · siglo XX a hoy</p>
+      <h1 class="k">El olivo <em>recuerda</em></h1>
+      <p class="subtitle a">Cien años. Nadie sale limpio de esta historia.</p>
+      <div class="byline a">Geografía · 4°1</div>
+      <ul class="names a"><li>Juan Carratu</li><li>Bautista Casero</li><li>Santiago Jimenez</li><li>Gabriel Noguera</li><li>Tomas San Martin</li></ul>
+    </div>
+    <aside class="notes">Hacer clic una vez para que arranque el sonido. Presentarse sin sonreír. Decir: "Esto no va a ser cómodo. Tampoco debería".</aside>
+  </section>
+
+  <section data-era="tierra" data-olive="relato" data-sound="viento:.12 pajaros:.08">
+    <div class="s story">
+      <p class="kicker a">Índice</p>
+      <h2 class="k">Seis ramas, <em>ninguna limpia</em></h2>
+      <div class="index a">
+        <button data-goto="c-tierra"><b>I</b>La tierra</button>
+        <button data-goto="c-promesas"><b>II</b>Las promesas · 1917-1947</button>
+        <button data-goto="c-48"><b>III</b>1948</button>
+        <button data-goto="c-guerras"><b>IV</b>Guerras y paz · 1967-1995</button>
+        <button data-goto="c-hoy"><b>V</b>Hoy · 2000-2026</button>
+        <button data-goto="c-cierre"><b>VI</b>El olivo</button>
+      </div>
+    </div>
+    <aside class="notes">Índice clicable. Carratu: "Vamos a contar esto como lo contaría alguien que estuvo ahí todo el tiempo".</aside>
+  </section>
+
+  <section id="c-tierra" data-era="tierra" data-olive="relato" data-sound="viento:.2">
+    <div class="s story">
+      <p class="kicker a">Carratu · La tierra</p>
+      <blockquote class="tale a">Tengo más de mil años.<br>Vi pasar romanos, cruzados, otomanos y británicos.<br>Mis raíces no saben de fronteras.<br><em>Las fronteras llegaron después.</em></blockquote>
+      <p class="small a">En estas colinas hay olivos de cientos de años, que todavía dan aceitunas. Son de los seres vivos más viejos de esta tierra, y por eso los dejamos contar la historia.</p>
+    </div>
+    <aside class="notes">Leer despacio y mirar al curso, no a la pantalla. El olivo es símbolo para las dos sociedades: judía y palestina.</aside>
+  </section>
+
+  <section data-era="tierra" data-enter="fly" data-sound="viento:.2 mar:.12" class="flight">
+    <canvas id="terrain" width="1920" height="1080"></canvas>
+    <div id="tpins"></div>
+    <div class="s fly-ui">
+      <p class="kicker">Relieve real</p>
+      <div id="flyInfo" class="panel"></div>
+      <div class="stops">
+        <button data-stop>El mar</button><button data-stop>Las colinas</button><button data-stop>Mar Muerto</button><button data-stop>El Néguev</button>
+      </div>
+    </div>
+    <aside class="notes">El vuelo avanza solo; también se puede tocar cada parada. Datos de elevación reales, exageración vertical para que se note.</aside>
+  </section>
+
+  <section data-era="tierra" data-enter="profile" data-sound="bebe:.012 viento:.3">
+    <div class="s">
+      <p class="kicker a">Corte de oeste a este, a la altura de Jerusalén</p>
+      <h2 class="k">En 100 km, de la playa a <em>−430 metros</em></h2>
+      <svg id="profile" viewBox="0 0 1620 330" class="a"></svg>
+      <p class="lead a">Mar, llanura, colinas, y una fosa. Esta forma explica casi todo: <strong>dónde se vive, por dónde pasa el agua y qué se puede defender.</strong></p>
+    </div>
+    <aside class="notes">Perfil real calculado con datos de elevación. La fosa del Jordán es parte del gran valle del Rift. Altura exagerada.</aside>
+  </section>
+
+
+  <section data-era="tierra" data-enter="agua" data-sound="viento:.08 mar:.2">
+    <div class="s agua">
+      <div class="agua-l">
+        <p class="kicker a">El agua también es frontera</p>
+        <h2 class="k">El agua depende <em>de quién sos</em></h2>
+        <ul class="list a">
+          <li>El <strong>Jordán</strong> es la frontera este y la fuente del Mar de Galilea.</li>
+          <li>El <strong>acuífero de la Montaña</strong> está bajo Cisjordania. Desde Oslo, Israel extrae la mayor parte.</li>
+          <li>En <strong>Gaza</strong>, según la ONU, más del 95% del agua de su acuífero no es potable.</li>
+        </ul>
+        <div class="sea-ctl a"><b id="seaYear">1960</b></div>
+      </div>
+      <div id="aguaMap" class="map a"></div>
+      <div class="gauge a"><p>Mar Muerto</p><div class="tube"><i id="seaFill"></i></div><b id="seaLevel">−395 m</b><small>baja cerca de 1 m por año</small></div>
+    </div>
+    <aside class="notes">El Mar Muerto baja porque se desvía el agua del Jordán y por las salinas de explotación.</aside>
+  </section>
+
+  <section data-era="tierra" data-enter="jerusalem3d jerusalem" data-sound="viento:.05" class="flight jeru">
+    <canvas id="oldCity3d" width="1920" height="1080"></canvas>
+    <div id="jpins"></div>
+    <div class="s fly-ui">
+      <p class="kicker">Jerusalén · Ciudad Vieja</p>
+      <h2>Rezan a metros. <em>No se escuchan.</em></h2>
+      <div id="jeruInfo" class="panel"></div>
+      <div class="stops">
+        <button data-j="muro">Muro</button><button data-j="domo">Explanada</button><button data-j="sepulcro">Sepulcro</button><button data-j="todo">Las tres</button>
+      </div>
+    </div>
+    <aside class="notes">Maqueta 3D hecha para esta presentación: esquemática, no a escala exacta. Cada lugar tiene su sonido real: shofar, adhan, campanas. Al final suenan juntos. Se puede girar y acercar.</aside>
+  </section>
+
+  <!-- ==================== 2. LAS PROMESAS ==================== -->
+
+
+  <section id="c-promesas" data-era="mandato" data-olive="polvo" data-enter="letters" data-sound="maquina:.22 telegrafo:.08">
+    <div class="s">
+      <p class="kicker a">Primera Guerra Mundial · Londres promete</p>
+      <h2 class="k">Prometieron lo que <em>no era suyo</em></h2>
+      <p class="small a">1897: Herzl funda el sionismo ante el antisemitismo europeo. En Palestina, otomana, viven árabes hace siglos, y también quieren independencia.</p>
+      <div class="letters a">
+        <button class="letter" data-text="El Reino Unido apoyará la independencia árabe si se rebelan contra los otomanos. Los árabes entienden que incluye Palestina."><small>1915 · Hussein-McMahon</small><b>A los árabes</b><p class="txt"></p></button>
+        <button class="letter" data-text="Mapa secreto: Francia y Reino Unido se reparten Oriente Medio. Palestina quedaría bajo administración internacional."><small>1916 · Sykes-Picot</small><b>A Francia</b><p class="txt"></p></button>
+        <button class="letter" data-text="Lord Balfour promete 'un hogar nacional para el pueblo judío' en Palestina, sin perjudicar a sus comunidades no judías."><small>1917 · Balfour</small><b>A los sionistas</b><p class="txt"></p></button>
+      </div>
+      <p class="small a">Londres se comprometió con partes distintas sobre el mismo lugar. Cada una se sintió con derecho.</p>
+    </div>
+    <aside class="notes">La carta de Balfour tiene 67 palabras. Las negociaciones de Hussein-McMahon son de 1915-16; su alcance sobre Palestina se discute hasta hoy.</aside>
+  </section>
+
+  <section data-era="mandato" data-enter="population" data-sound="maquina:.08 viento:.08">
+    <div class="s two">
+      <div>
+        <p class="kicker a">El Mandato británico · 1920-1948</p>
+        <h2 class="k">Unos huían. <em>Otros miraban llegar.</em></h2>
+        <div class="stops a"><button data-pop="1922">1922</button><button data-pop="1931">1931</button><button data-pop="1936">1936</button><button data-pop="1939">1939</button><button data-pop="1947">1947</button></div>
+        <div class="sea-ctl a"><b id="popNow">1922</b></div>
+        <p id="popText" class="lead a"></p>
+        <ul class="key a"><li><i class="a1"></i>Árabes y otros</li><li><i class="j1"></i>Judíos</li></ul>
+      </div>
+      <div class="waffle a" aria-label="Cien personas"></div>
+    </div>
+    <aside class="notes">Cada figura es 1% de la población. Tras el ascenso del nazismo la inmigración se dispara.</aside>
+  </section>
+
+  <section data-era="mandato" data-enter="timeline" data-sound="multitud:.2 disparos:.22" data-bg="exodus" data-bg-opacity="0.22">
+    <div class="s">
+      <p class="kicker a">Se acumula la tormenta</p>
+      <h2 class="k">De la revuelta al <em>Exodus</em></h2>
+      <div class="tl a">
+        <div class="tl-track"><button class="tl-dot">1936</button><button class="tl-dot">1937</button><button class="tl-dot">1939</button><button class="tl-dot">1939-45</button><button class="tl-dot">1947</button></div>
+        <div class="tl-panels">
+          <article data-s="multitud:.2 disparos:.22 viento:.05"><h3>Revuelta árabe</h3><p>Huelga general y levantamiento contra los británicos y la inmigración judía. Dura tres años y la represión mata a miles de árabes.</p></article>
+          <article data-s="maquina:.2 telegrafo:.1"><h3>Plan Peel</h3><p>Una comisión británica propone por primera vez dividir la tierra en dos. Nadie lo acepta en esos términos.</p></article>
+          <article data-s="maquina:.24 reloj:.12"><h3>Libro Blanco</h3><p>Londres limita la inmigración judía justo cuando Europa se cierra sobre ellos.</p></article>
+          <article data-s="grave:.24 latido:.1"><h3>El Holocausto</h3><p>La Alemania nazi asesina a seis millones de judíos. Los sobrevivientes no tienen a dónde volver.</p></article>
+          <article data-s="barco:.32 mar:.2 multitud:.06"><h3>El Exodus</h3><p>4.500 sobrevivientes llegan en barco a Haifa. Los británicos lo abordan y los mandan de vuelta a Alemania. El mundo mira. Londres entrega el problema a la ONU.</p></article>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">Pasa solo. Cada año se puede tocar.</aside>
+  </section>
+
+  <section data-era="mandato" data-t="0.4" data-enter="vote" data-sound="multitud:.08 reloj:.14">
+    <div class="s part">
+      <div class="part-l">
+        <p class="kicker a">29 de noviembre de 1947 · Resolución 181</p>
+        <h2 class="k">Treinta y tres votos <em>parten tu casa</em></h2>
+        <div class="tally a"><div class="si"><b id="n-si">0</b>a favor</div><div class="no"><b id="n-no">0</b>en contra</div><div class="ab"><b id="n-ab">0</b>abstenciones</div></div>
+        <div class="votes a">
+          <div id="v-si"></div><div id="v-no"></div><div id="v-ab"></div>
+        </div>
+        <p class="small a"><strong>Argentina se abstuvo.</strong> El plan daba 56% al Estado judío, con un tercio de la población. Los líderes judíos aceptaron y los árabes rechazaron.</p>
+      </div>
+      <div class="part-r">
+        <div id="partMap" class="map a"></div>
+        <ul class="key col a"><li><i class="k1"></i>Estado judío</li><li><i class="k2"></i>Estado árabe</li><li><i class="k3"></i>Jerusalén, internacional</li></ul>
+      </div>
+    </div>
+    <aside class="notes">Votación real, 33-13-10 (Tailandia ausente). Los tres segmentos del mapa son el trazado del plan, aproximado.</aside>
+  </section>
+
+  <!-- ==================== 3. 1948 ==================== -->
+  <section id="c-48" data-era="ceniza" data-t="0.6" data-enter="steps:m48" data-sound="declaracion:.5 disparos:.3 explosiones:.2">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker a">Jimenez · 1947-1949</p>
+        <h2 class="k">Se terminó <em>el cuento</em></h2>
+        <p class="lead a">14 de mayo: Ben-Gurión declara el Estado de Israel. Esa es su voz. Al día siguiente, cinco ejércitos árabes entran en guerra.</p>
+        <div class="stops a"></div>
+        <div class="panel tall a"></div>
+        <p class="small a">Israel pierde cerca de 6.000 personas, el 1% de su población. Del lado árabe, muchos miles más.</p>
+      </div>
+      <div class="map a" id="map48"></div>
+    </div>
+    <aside class="notes">Decir: "A partir de acá, cada lado te va a dar un motivo para odiar al otro. Prestá atención a cuándo te pasa". El color desaparece. Bajar la voz. Se escucha la grabación real de 1948. Tocar los puntos: hubo crímenes de los dos lados. Cifras de B. Morris, "1948"; Deir Yassin y Dawayima varían según la fuente.</aside>
+  </section>
+
+  <section data-era="ceniza" data-olive="ceniza" data-t=".7" data-sound="sollozo:.1 viento:.14 latido:.14">
+    <div class="split-wrap">
+      <div class="split">
+        <div class="half left"><p class="hw">עצמאות</p><h3>Independencia</h3><p>Para los judíos: después del Holocausto, por fin un Estado propio. Un refugio. Cada año se festeja.</p></div>
+        <div class="half right"><p class="hw">النكبة</p><h3>Nakba</h3><p>Para los palestinos: "la catástrofe". Más de 400 aldeas vaciadas y un pueblo sin hogar. Cada año se conmemora con luto.</p></div>
+      </div>
+    </div>
+    <aside class="notes">Decir: "El día que unos festejan es el día que otros perdieron todo". Esperar. Mismo día, dos memorias. No hay que elegir una para entender la otra.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.1" class="real">
+    <img data-img="p_jaffa" alt="Jaffa, 1948" />
+    <p class="rc"><b>Jaffa, 1948</b>Chicas empujando en cochecitos lo que pudieron sacar de sus casas.</p>
+    <aside class="notes">Foto real. Archivo de la ONU. No decir nada unos segundos.</aside>
+  </section>
+
+  <section data-era="ceniza" data-t="0.95" data-enter="diez" data-sound="grito:.12 bebe:.16 latido:.55 disparos:.42 multitud:.2" class="diez">
+    <div class="s">
+      <div class="dz-top"><div><p class="kicker">Abril de 1948 · Tu casa</p><h2>Se acercan. <em>Agarrá tres cosas.</em></h2></div><b class="dz-t">10</b></div>
+      <p class="dz-rest">Te quedan <span class="dz-left">3</span></p>
+      <div class="dz-items">
+        <button>La llave</button><button>Las escrituras</button><button>Las fotos</button>
+        <button>La plata</button><button>Comida</button><button>Los remedios</button>
+        <button>El abrigo</button><button>Tu perro</button><button>A tu abuela, que no camina</button>
+      </div>
+      <div class="dz-end fadein"><b></b><p>Pensabas volver en unos días. Fueron 700.000 personas. Nunca los dejaron volver.</p></div>
+    </div>
+    <aside class="notes">Pedirle a alguien del curso que elija, sin ayuda. Las cosas se van perdiendo solas. No comentar lo que eligió. Esperar. Después: "Eso mismo tuvieron que decidir, y no era un juego".</aside>
+  </section>
+
+  <section data-era="ceniza" data-t="0.6" data-enter="relics count" data-sound="llanto:.16 pasos:.24 viento:.14">
+    <div class="s relic">
+      <p class="kicker a">Lo que se llevaron</p>
+      <h2 class="k">Una llave. <em>Una maleta.</em></h2>
+      <canvas id="relics" width="1500" height="520" class="a"></canvas>
+      <div class="pair center a">
+        <div><b data-count="700000" data-dur="3">0</b><h3>palestinos refugiados</h3><p>Huyeron o fueron expulsados en 1948. Muchas familias guardan aún la llave de una casa que ya no existe. Hoy la ONU registra cerca de 6 millones de refugiados.</p></div>
+        <div><b data-count="850000" data-dur="3">0</b><h3>judíos de países árabes</h3><p>Salieron o fueron expulsados de Irak, Yemen, Marruecos, Egipto y otros en las décadas siguientes. La mayoría se instaló en Israel.</p></div>
+      </div>
+    </div>
+    <aside class="notes">Decir: "Hay familias que todavía guardan esa llave". Son objetos 3D que giran. Cifras: 700-750 mil (ONU y la mayoría de los historiadores); 850 mil en torno a 1948-1970.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.1" class="real">
+    <img data-img="p_nahr" alt="Nahr el-Bared, Líbano, 1952" />
+    <p class="rc"><b>Nahr el-Bared, Líbano, 1952</b>Iba a ser por unas semanas.</p>
+    <aside class="notes">Foto real. Archivo de UNRWA. Es un campo de refugiados palestinos. Muchos siguen en campos: ya van cuatro generaciones.</aside>
+  </section>
+
+  <section data-era="ceniza" data-enter="drawGreen" data-sound="viento:.12">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker a">Armisticio de 1949</p>
+        <h2 class="k">La <em>Línea Verde</em></h2>
+        <p class="lead a">Israel queda con cerca del 78% del territorio. Lo que pudo ser un Estado árabe queda partido:</p>
+        <ul class="key col a"><li><i class="k4"></i>Israel</li><li><i class="k5"></i>Cisjordania: la administra Jordania</li><li><i class="k6"></i>Gaza: la administra Egipto</li></ul>
+        <p class="small a">Se llama así por el color del lápiz con que se dibujó. Es una tregua, no una frontera acordada. Jerusalén queda partida en dos.</p>
+      </div>
+      <div id="map49" class="map a"></div>
+    </div>
+    <aside class="notes">Esa línea es la que hoy se discute como posible frontera. Ningún Estado palestino nace en 1949.</aside>
+  </section>
+
+  <!-- ==================== 4. GUERRAS Y PAZ ==================== -->
+  <section id="c-guerras" data-era="setenta" data-t="0.45" data-enter="sixDays" data-sound="aviones:.3 explosiones:.3 radio:.06">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker a">Noguera · Junio de 1967</p>
+        <h2 class="k">Seis días. <em>Casi sesenta años.</em></h2>
+        <div class="days a">
+          <button data-day>1</button><button data-day>2</button><button data-day>3</button><button data-day>4</button><button data-day>5</button><button data-day>6</button>
+        </div>
+        <div id="dayInfo" class="panel tall a"></div>
+        <p class="small a">Antes, Egipto cerró el estrecho de Tirán y juntó tropas en el Sinaí. Desde entonces: <strong>ocupación</strong> de Cisjordania y Gaza. La ONU pide retirarse (Res. 242).</p>
+      </div>
+      <div id="map67" class="map a"></div>
+    </div>
+    <aside class="notes">Vuelve el color, el de una foto vieja. Israel lo llama guerra preventiva; los palestinos, Naksa ("el revés").</aside>
+  </section>
+
+  <section data-era="setenta" data-enter="steps:espiral" data-sound="radio:.12 disparos:.12 explosiones:.1" data-bg="campdavid" data-bg-opacity="0.12">
+    <div class="s">
+      <p class="kicker a">1972-1982</p>
+      <h2 class="k">La <em>espiral</em></h2>
+      <p class="lead a">El conflicto sale del mapa. Cada golpe justifica el siguiente.</p>
+      <div class="stops a"></div>
+      <div class="panel tall big a"></div>
+    </div>
+    <aside class="notes">Pasan solos o se tocan. Lo de 1973-79 es la única buena noticia del período, y deja afuera a los palestinos. Sabra y Chatila: la comisión Kahan israelí halló a Sharon personalmente responsable de no prevenirla.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="piedras:.3 multitud:.2" class="real">
+    <img data-img="p_intifada2" alt="Gaza, 21 de diciembre de 1987" />
+    <p class="rc"><b>Gaza, 21 de diciembre de 1987</b>Primeras semanas de la Primera Intifada.</p>
+    <aside class="notes">Foto real de Efi Sharir, archivo Dan Hadani.</aside>
+  </section>
+
+  <section data-era="setenta" data-enter="count" data-sound="piedras:.3 multitud:.24 disparos:.12">
+    <div class="s">
+      <p class="kicker a">Diciembre de 1987</p>
+      <h2 class="k">Las <em>piedras</em></h2>
+      <p class="lead a">Tras 20 años de ocupación, un accidente en Gaza hace estallar la Primera Intifada: huelgas, boicots y jóvenes tirando piedras contra soldados.</p>
+      <div class="stats a">
+        <div><b data-count="1000" data-prefix="+">0</b><span>palestinos muertos por fuerzas israelíes</span></div>
+        <div><b data-count="170" data-prefix="+">0</b><span>israelíes muertos</span></div>
+        <div><b>1987</b><span>nace Hamás, islamista, que rechaza a Israel</span></div>
+      </div>
+      <p class="small a">La OLP, de Yasser Arafat, reconoce a Israel en 1988 y empieza a negociar. Hamás elige otro camino: en los 90, los atentados suicidas.</p>
+      <svg class="stones" viewBox="0 0 1600 180" aria-hidden="true"><path style="--d:0.00s" d="M60 170 l20 -36 l34 -6 l26 30 l-14 16 Z"/><path style="--d:0.35s" d="M250 170 l23 -50 l34 -6 l26 36 l-14 16 Z"/><path style="--d:0.70s" d="M430 170 l26 -64 l34 -6 l26 42 l-14 16 Z"/><path style="--d:1.05s" d="M640 170 l29 -36 l34 -6 l26 30 l-14 16 Z"/><path style="--d:1.40s" d="M820 170 l32 -50 l34 -6 l26 36 l-14 16 Z"/><path style="--d:1.75s" d="M1010 170 l35 -64 l34 -6 l26 42 l-14 16 Z"/><path style="--d:2.10s" d="M1190 170 l38 -36 l34 -6 l26 30 l-14 16 Z"/><path style="--d:2.45s" d="M1370 170 l41 -50 l34 -6 l26 36 l-14 16 Z"/></svg>
+    </div>
+    <aside class="notes">Intifada significa sacudida o levantamiento. Cifras de B'Tselem, 1987-1993.</aside>
+  </section>
+
+  <section data-era="setenta" data-t="0.12" data-enter="hands" data-sound="multitud:.12 pad:.14">
+    <div class="s oslo">
+      <div class="oslo-l">
+        <p class="kicker a">13 de septiembre de 1993 · Casa Blanca</p>
+        <h2 class="k">Un apretón de manos. <em>Dos años después, tres balas.</em></h2>
+        <div class="hands a"><img data-img="oslo" alt="Rabin, Clinton y Arafat, 1993" /></div>
+        <p class="small a">Rabin y Arafat firman Oslo: reconocimiento mutuo y autonomía palestina por etapas. Quedan sin resolver Jerusalén, refugiados, asentamientos y fronteras.</p>
+      </div>
+      <div id="osloMap" class="fadein">
+        <div id="mapOslo" class="map"></div>
+        <ul class="key col"><li><i class="k7"></i>Área A: control palestino · 18%</li><li><i class="k8"></i>Área B: mixto · 22%</li><li><i class="k9"></i>Área C: control israelí · 60%</li></ul>
+      </div>
+    </div>
+    <aside class="notes">Rabin, Arafat y Peres reciben el Nobel de la Paz en 1994. Mapa de áreas es un esquema: en la realidad hay más de cien fragmentos. Porcentajes de Oslo II.</aside>
+  </section>
+
+  <section data-era="silencio" data-olive="herido" data-t="0.2" data-enter="candle" data-sound="grave:.14">
+    <div class="s vela">
+      <p class="kicker a">4 de noviembre de 1995 · Tel Aviv</p>
+      <button class="candle a" aria-label="Encender la vela"><span class="flame"></span><span class="wax"></span></button>
+      <div id="candleText" class="fadein">
+        <h2>Yitzhak Rabin</h2>
+        <p class="lead">Después de un acto por la paz, lo asesina Yigal Amir, un extremista judío israelí que se oponía a Oslo.</p>
+        <p class="small">Desde 1994, atentados de Hamás y una masacre en Hebrón de un colono israelí ya desgastaban el acuerdo. Los extremistas de ambos lados rompieron lo que los moderados firmaron.</p>
+      </div>
+    </div>
+    <aside class="notes">Decir: "Lo mató un israelí, por firmar la paz". Silencio antes de seguir. El olivo pierde hojas. La vela se enciende sola o con un clic.</aside>
+  </section>
+
+  <!-- ==================== 5. HOY ==================== -->
+  <section id="c-hoy" data-era="hoy" data-enter="wall steps:muro" data-sound="topadora:.22 viento:.1 dron:.04" data-bg="muro" data-bg-opacity="0.1">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker a">San Martin · 2000-2005</p>
+        <h2 class="k">Crece un <em>muro</em></h2>
+        <p class="lead a">Camp David 2000 fracasa. <strong>Segunda Intifada:</strong> unos 3.000 palestinos y 1.000 israelíes muertos. Israel empieza a construir.</p>
+        <div class="stops a"></div>
+        <div class="panel tall a"></div>
+        <div class="wall-num a"><b id="km">0</b><span>km previstos, cerca del 65% ya construido. Israel: "valla de seguridad", bajó los atentados. Palestinos: "muro del apartheid", toma tierra. La CIJ, en 2004: ilegal donde entra en Cisjordania.</span></div>
+      </div>
+      <div class="map a" id="mapMuro"></div>
+    </div>
+    <aside class="notes">El mismo objeto, dos palabras. La línea es el trazado de OpenStreetMap (unos 500 km mapeados, aproximado): no separa lo construido de lo planeado. Fíjense que no sigue la Línea Verde: entra en Cisjordania. Tocar los puntos: los atentados que explican por qué se hizo, y lo que le hace a la gente que queda al lado.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="real" class="real">
+    <video data-vid="v_khallet" playsinline preload="auto"></video>
+    <p class="rc"><b>Khallet Athaba, Cisjordania, 10 de febrero de 2025</b>En dos horas, ocho viviendas demolidas: cinco casas, una carpa y dos cuevas.</p>
+    <aside class="notes">Video real, con su sonido. Israel dice que se construyeron sin permiso; los palestinos de la zona C casi nunca lo obtienen.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.08 topadora:.04" class="real">
+    <img data-img="p_qalandia" alt="Puesto de Qalandia, Ramala, 2011" />
+    <p class="rc"><b>Puesto de Qalandia, Ramala, 2011</b>Por acá se pasa a pie para ir a trabajar.</p>
+    <aside class="notes">Foto real.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="real" class="real">
+    <video data-vid="v_clash" playsinline preload="auto"></video>
+    <p class="rc"><b>Cerca de Qalandia, Cisjordania, 20 de diciembre de 2017</b>Gases contra una protesta palestina. El sonido es el de ese día.</p>
+    <aside class="notes">Video real de Ultra Palestine, con su sonido. Nombrar que Israel dice dispersar disturbios y que hubo piedras.</aside>
+  </section>
+
+  <section data-era="hoy" data-enter="archipelago ataque:9000" data-sound="dron:.1 viento:.1 helicoptero:.06">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker a">Cisjordania hoy</p>
+        <h2 class="k">Tu país, en <em>islas</em></h2>
+        <div class="stops a"><button data-layer="a">Área A</button><button data-layer="b">Área B</button><button data-layer="c">Área C</button><button data-layer="sets">Asentamientos</button></div>
+        <p class="lead a">Tres millones de palestinos en islas de tierra. Más de <strong>700.000 colonos</strong> israelíes, sumando Jerusalén Este.</p>
+        <svg id="colonos" viewBox="0 0 620 250" class="a"></svg>
+        <p class="small a">Desde octubre de 2023: 1.129 palestinos muertos en Cisjordania, 240 de ellos niños, y más de 5.000 ataques de colonos. Casi todo el mundo considera ilegales los asentamientos; Israel lo discute y muchos colonos lo reclaman como su tierra bíblica. Mapa esquemático.</p>
+      </div>
+      <div id="mapArch" class="map a"></div>
+    </div>
+    <aside class="notes">Los cuadrados son solo algunos de los asentamientos: hay unos 146 oficiales y más de 200 puestos de avanzada (Peace Now, 2026).</aside>
+  </section>
+
+  <section data-era="hoy" data-t="0.65" data-enter="porton" data-sound="bebe2:.14 reloj:.26 radio:.08 dron:.1 viento:.1" class="porton">
+    <div class="s two">
+      <div>
+        <p class="kicker">Cisjordania · Un martes</p>
+        <h2>Tu hijo tiene turno en el <em>hospital.</em></h2>
+        <p class="lead">Está a 12 kilómetros. Hay un portón.</p>
+        <button class="pt-hold">Esperar</button>
+        <p class="pt-say"></p>
+        <div class="pt-end fadein"><p class="lead">El turno era hoy.</p><p class="small">Más de 800 puestos y barreras en Cisjordania (OCHA, 2025). Israel dice que frenan atentados. Para ir de un pueblo a otro, un palestino necesita que lo dejen.</p></div>
+      </div>
+      <svg viewBox="0 0 800 520" class="pt-svg"><rect x="0" y="440" width="800" height="80" class="pt-road"/><rect x="222" y="270" width="36" height="170" class="pt-post"/><g class="pt-arm"><rect x="240" y="286" width="500" height="26" class="pt-bar"/><rect x="330" y="286" width="60" height="26" class="pt-red"/><rect x="510" y="286" width="60" height="26" class="pt-red"/><rect x="690" y="286" width="50" height="26" class="pt-red"/></g></svg>
+    </div>
+    <aside class="notes">Mantener apretado "Esperar": la barrera sube despacio. Si se suelta, baja. Al final la cierran igual, tres veces. El caso es ilustrativo: el dato de barreras es de OCHA.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="1" data-enter="quince" data-sound="respira:.35 sirena:.62 latido:.3" class="quince">
+    <div class="s">
+      <p class="kicker">Sderot · Sur de Israel · Estás en la calle</p>
+      <div class="qz-mid"><b class="qz-t">15</b><p>Sonó la alarma. Tenés quince segundos para llegar al refugio.</p></div>
+      <svg viewBox="0 0 1672 150" class="qz-svg"><line x1="40" x2="1640" y1="90" y2="90"/><rect x="1560" y="30" width="90" height="100"/><circle class="qz-me" cx="60" cy="90" r="20"/></svg>
+      <button class="qz-run">Correr</button>
+      <div class="qz-end fadein"><b>No llegaste.</b><p>Desde 2001, miles de cohetes desde Gaza. En Sderot hay chicos que nunca durmieron lejos de un refugio. Al otro lado de la valla, los civiles no tienen ni sirena ni refugio.</p></div>
+    </div>
+    <aside class="notes">Que corra alguien del curso, a puro clic. Nadie llega: está hecho a propósito. "No llegaste", un disparo, negro y un pitido. No hablar hasta que aparezca el texto.</aside>
+  </section>
+
+  <section data-era="hoy" data-t="0.5" data-enter="gazaOver count" data-sound="mar:.1 dron:.14">
+    <div class="s two">
+      <div>
+        <p class="kicker a">La Franja</p>
+        <h2 class="k">Tu ciudad, <em>sin salida</em></h2>
+        <ul class="list a">
+          <li><strong>2005:</strong> Israel saca a sus 8.000 colonos y a sus soldados.</li>
+          <li><strong>2006-07:</strong> Hamás gana las elecciones y toma Gaza por la fuerza, echando a sus rivales de Fatah.</li>
+          <li><strong>2007:</strong> Israel y Egipto imponen un bloqueo. Israel controla aire, mar y casi todos los cruces.</li>
+          <li><strong>2008-2021:</strong> cuatro guerras. Solo la de 2014: 2.251 palestinos y 73 israelíes muertos.</li>
+        </ul>
+        <div class="stats a"><div><b>365</b><span>km²</span></div><div><b>41</b><span>km de largo</span></div><div><b data-count="2100000">0</b><span>personas antes de 2023</span></div></div>
+      </div>
+      <svg id="gazaScale" viewBox="0 0 780 820" class="a"></svg>
+    </div>
+    <aside class="notes">Misma escala que la CABA: mismos mil metros. Casi dos Capitales Federales, con sus habitantes de hoy más otro tercio, sin poder salir.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="real" data-sound="sirena:.6 multitud:.2" class="real">
+    <video data-vid="v_sur" playsinline preload="auto"></video>
+    <p class="rc"><b>Sur de Israel, 2009</b>Sonó la alarma. Hay segundos para llegar al refugio.</p>
+    <aside class="notes">Video real sin su sonido original; la sirena es agregada. En las ciudades cerca de Gaza hay unos 15 segundos.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="real" class="real">
+    <video data-vid="v_cohetes" playsinline preload="auto"></video>
+    <p class="rc"><b>Israel, 14 de mayo de 2021</b>Cohetes disparados desde Gaza.</p>
+    <aside class="notes">Video real, con su sonido.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="0.05" data-enter="oct7" data-sound="pajaros:.3" class="oct7">
+    <div class="s">
+      <div class="lines">
+        <p class="line big">7 de octubre de 2023</p>
+        <p class="line">Sábado. 6:29 de la mañana.</p>
+        <p class="line">Hamás y otros grupos lanzan miles de cohetes y cruzan la valla de Gaza.</p>
+        <p class="line">En el festival Nova matan a más de 360 jóvenes.</p>
+        <p class="line">En Be'eri, Nir Oz y Kfar Aza, a familias enteras en sus casas.</p>
+        <p class="line">Queman casas con gente adentro. La ONU halló indicios creíbles de violencia sexual.</p>
+      </div>
+      <div class="dots-count"><b id="oct7n"></b><p>muertos en Israel, la mayoría civiles. El día más letal para los judíos desde el Holocausto. Y 251 personas secuestradas: bebés, abuelos.</p></div>
+    </div>
+    <aside class="notes">No hablar por encima de la sirena. Al final, decir: "Estaban en su casa. Estaban bailando". Cifras: 1.195, recuento de AFP con datos oficiales israelíes. Nova: datos de la policía israelí. Violencia sexual: informe de Pramila Patten para la ONU, marzo de 2024.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="oscuro:kibutz" class="oscuro">
+    <svg class="os-door" viewBox="0 0 400 700"><rect x="20" y="10" width="360" height="680"/><circle cx="330" cy="370" r="13"/></svg>
+    <svg class="os-open" viewBox="0 0 400 700"><rect x="20" y="10" width="360" height="680"/><g><circle cx="200" cy="120" r="62"/><path d="M-10 700V300Q0 214 150 196H250Q400 214 410 300V700Z"/></g></svg>
+    <div class="s"><p class="os-a">No hagas ruido.</p>
+      <div class="os-b fadein"><p class="kicker">Un refugio en un kibutz · 7 de octubre de 2023</p><p class="lead">Hubo familias que esperaron así muchas horas, sosteniendo la puerta. Algunas puertas se abrieron.</p></div>
+    </div>
+    <aside class="notes">No hablar. Dura 25 segundos: la pantalla casi negra y una puerta. Al final la puerta se abre de golpe, con un disparo. Recrea el encierro; no es una grabación del lugar.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.06" class="real">
+    <img data-img="p_beeri7" alt="Be'eri, días después del 7 de octubre" />
+    <p class="rc"><b>Be'eri, días después del 7 de octubre</b>Un postre, todavía en el plato.</p>
+    <aside class="notes">Foto real de Micha Brikman. No hablar. Be'eri perdió cerca de un décimo de su gente.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.06" class="real">
+    <img data-img="p_beeri3" alt="Be'eri" />
+    <p class="rc"><b>Be'eri</b>Un juguete en el patio.</p>
+    <aside class="notes">Foto real de Micha Brikman. No hablar.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="0.8" data-enter="mortajas:israel" data-sound="sollozo:.1 kolnidre:.26 viento:.12" class="mortajas">
+    <canvas width="1920" height="1080"></canvas>
+    <p class="mj-tip"></p>
+    <div class="mj-end"><b>1.195</b><p>muertos en Israel. Las chicas son chicos.</p><small>Recuento de AFP con datos oficiales israelíes. Tamaños según la lista oficial de civiles; el total incluye soldados.</small></div>
+    <aside class="notes">Después del número, decir: "Cada una tenía nombre". Se empieza a ras del piso. La cámara sube sola, 5 segundos. Con el cursor se ven nombres reales. No hablar hasta que aparezca el número. Es una mortaja por persona; ninguna es explícita.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="0.85" data-enter="mortajas:gaza" data-sound="llanto:.16 bebe:.05 viento:.16 dron:.07 ambulancia:.08 adhan:.1" class="mortajas">
+    <canvas width="1920" height="1080"></canvas>
+    <p class="mj-tip"></p>
+    <div class="mj-end"><b>74.594</b><p>muertos en Gaza. 20.179 niños.</p><small>Ministerio de Salud de Gaza, oct. 2026: depende de Hamás y no separa civiles de combatientes. La ONU usa sus datos; Israel los cuestionó, y en 2026 un oficial militar aceptó el orden de magnitud.</small></div>
+    <aside class="notes">Después del número, decir: "Te di dos números. Si uno te dolió más que el otro, preguntate por qué". Israel responde con bombardeos e invasión para destruir a Hamás. Misma regla que la anterior. Silencio total hasta el número, y un rato más. Actualizar la cifra antes de exponer: data.techforpalestine.org.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".85" data-enter="real" data-sound="explosiones:.5 viento:.14 grave:.1" class="real">
+    <video data-vid="v_gaza" playsinline preload="auto"></video>
+    <p class="rc"><b>Gaza, octubre de 2023</b>81% de los edificios de Gaza, dañados a octubre de 2025.</p>
+    <aside class="notes">Video real, sin sonido original: el sonido es agregado. UNOSAT: 198.273 estructuras afectadas, 123.464 destruidas. Hambruna confirmada en 2025 (IPC). Casi toda la población desplazada.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.14 dron:.1 llanto:.06" class="real">
+    <img data-img="p_gaza" alt="Barrio de Rimal, ciudad de Gaza, 10 de octubre de 2023" />
+    <p class="rc"><b>Barrio de Rimal, ciudad de Gaza, 10 de octubre de 2023</b>Hasta el día anterior vivía gente acá.</p>
+    <aside class="notes">Foto real de WAFA/APAimages. Bombardeo israelí del 9 de octubre.</aside>
+  </section>
+
+  <section data-era="hoy" data-t=".9" data-enter="bloqueo" data-sound="dron:.2 viento:.08 llanto:.08" class="bq">
+    <div class="s two">
+      <div class="bq-end fadein"><p class="kicker">Gaza · Diciembre de 2023</p><h2>Ahora ya podés <em>seguir.</em></h2><p class="lead">Israel publicó un mapa de bloques en internet para avisar qué zonas evacuar. Gaza estaba casi sin luz ni señal.</p><p class="small">Israel dijo que era para proteger civiles.</p></div>
+      <div class="bq-phone"><div class="bq-msg"><small>ALERTA · AHORA</small><b>Evacuá tu bloque.</b><p>Buscá tu número en el mapa.</p></div><p class="bq-st">Cargando el mapa…</p></div>
+    </div>
+    <aside class="notes">La presentación no avanza durante 10 segundos: no se puede pasar, a propósito. No decir nada. Dejar que prueben. Mapa de bloques: publicado por el ejército israelí en diciembre de 2023; hubo apagones de comunicaciones. Comprobarlo antes de exponer.</aside>
+  </section>
+
+  <section data-era="hoy" data-t="0.95" data-enter="adondeVas" data-sound="llanto:.12 bebe2:.1 dron:.16 helicoptero:.1 viento:.1 explosiones:.12" class="adonde">
+    <div class="s two map-s">
+      <div>
+        <p class="kicker">Gaza · 13 de octubre de 2023</p>
+        <h2>¿A dónde <em>vas?</em></h2>
+        <div class="panel tall big"><small>Tu casa, Beit Lahia</small><b>Caen volantes del cielo</b>Israel ordena a 1,1 millones de personas irse al sur en 24 horas. Elegí adónde.</div>
+        <p class="ad-count">Te fuiste <b class="ad-n-veces">0</b> veces</p>
+        <div class="ad-end fadein"><p class="lead">No quedó ningún lugar. Casi toda Gaza fue desplazada. Muchos, más de diez veces.</p><p class="small">Israel dice que avisa para salvar civiles y que Hamás se esconde entre ellos, en hospitales y túneles.</p></div>
+      </div>
+      <div class="map" id="mapAdonde"></div>
+    </div>
+    <aside class="notes">Que elija el curso. Todos los lugares terminan igual. No hay opción correcta: de eso se trata. Nombrar que Israel sostiene que Hamás usa a la población como escudo.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.14 dron:.1" class="real">
+    <img data-img="p_mawasi" alt="Al-Mawasi, Gaza, 22 de enero de 2025" />
+    <p class="rc"><b>Al-Mawasi, Gaza, 22 de enero de 2025</b>La zona a la que Israel mandaba a la gente a refugiarse.</p>
+    <aside class="notes">Foto real de Ashraf Amra para UNRWA.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.16 llanto:.06" class="real">
+    <img data-img="p_inundadas" alt="Deir el-Balah, Gaza, 23 de enero de 2025" />
+    <p class="rc"><b>Deir el-Balah, Gaza, 23 de enero de 2025</b>Carpas inundadas por la lluvia, en pleno invierno.</p>
+    <aside class="notes">Foto real de Ashraf Amra para UNRWA.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".75" data-sound="viento:.1 bebe2:.05" class="real">
+    <img data-img="p_cloaca" alt="Deir el-Balah, Gaza, 20 de agosto de 2024" />
+    <p class="rc"><b>Deir el-Balah, Gaza, 20 de agosto de 2024</b>Aguas servidas entre las carpas.</p>
+    <aside class="notes">Foto real de Ashraf Amra para UNRWA.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="1" data-enter="oscuro:gaza" class="oscuro">
+    <div class="os-glow"></div>
+    <div class="s"><p class="os-a">Se cortó la luz.</p>
+      <div class="os-b fadein"><p class="kicker">Gaza · De noche</p><p class="lead">Esto fue una noche. Fueron dos años de noches así.</p></div>
+    </div>
+    <aside class="notes">No hablar. Dura 25 segundos: parece que se cortó la presentación. Bajar las luces si se puede. Recrea una noche; no es una grabación del lugar.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".8" data-enter="escombros" data-sound="respira:.6 multitud:.05 piedras:.06" class="ec">
+    <div class="ec-luz"></div>
+    <div class="s"><p class="ec-say"></p><button class="ec-golpe">Golpear</button>
+      <div class="ec-end fadein"><p class="lead">Más de 8.000 personas siguen bajo los escombros de Gaza.</p><p class="small">Estimación de la Defensa Civil de Gaza, citada por la ONU (septiembre de 2026).</p></div>
+    </div>
+    <aside class="notes">Que golpee alguien del curso. Al primer golpe le contestan; después, no. No hablar hasta el número.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="0" data-enter="tinta" data-sound="viento:.03" class="tn">
+    <div class="s">
+      <svg viewBox="0 0 900 300" class="tn-svg"><defs><clipPath id="tinta"><rect class="tn-clip" x="660" y="0" width="0" height="300"/></clipPath></defs><text x="450" y="205" text-anchor="middle" clip-path="url(#tinta)">أحمد</text></svg>
+      <div class="tn-end fadein"><p class="lead">En Gaza, madres y padres les escribieron el nombre en la pierna a sus hijos.</p><p class="lead"><em>Para poder reconocerlos después.</em></p></div>
+    </div>
+    <aside class="notes">Silencio total. La tensión baja a cero a propósito: acá no hay sonido que asuste. No agregar nada. Reportado por CNN y Al Jazeera, octubre de 2023. El nombre es un ejemplo.</aside>
+  </section>
+
+  <section data-era="silencio" data-t="0" data-enter="cinta" data-sound="reloj:.1" class="cn">
+    <div class="s"><p class="small">Cada día, Rachel Goldberg-Polin se pegaba en el pecho una cinta con los días que llevaba secuestrado su hijo Hersh.</p>
+      <b class="cn-n">1</b>
+      <p class="cn-a fadein lead">A los 328 días, sus captores lo mataron en un túnel de Gaza.</p>
+      <p class="cn-b fadein"><em>"Respirar en este mundo sin aire."</em> <small>Rachel Goldberg-Polin, TIME, 2026</small></p>
+    </div>
+    <aside class="notes">No decir nada. Hersh fue secuestrado el 7 de octubre de 2023 en el festival Nova. Fuente: TIME, octubre de 2026.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".6" data-sound="sollozo:.06 latido:.16 viento:.1">
+    <div class="s">
+      <p class="kicker a">Detrás de cada mortaja</p>
+      <h2 class="k">Dos chicos, <em>dos historias</em></h2>
+      <div class="flips duo a">
+        <div class="flip" data-flip><div class="face front"><b>Kfir Bibas</b><p>9 meses</p></div><div class="face back"><p>Secuestrado en Nir Oz el 7 de octubre, con su hermano Ariel, de 4 años, y su madre Shiri. Sus cuerpos volvieron en febrero de 2025. Los forenses israelíes dicen que los mataron en cautiverio. Hamás dice que murieron en un bombardeo.</p></div></div>
+        <div class="flip" data-flip><div class="face front"><b>Hind Rajab</b><p>6 años</p></div><div class="face back"><p>Enero de 2024, Gaza. El auto de su familia queda bajo fuego. Sobrevive entre sus parientes muertos y habla horas por teléfono con la Media Luna Roja. Doce días después la encuentran muerta, junto a los dos paramédicos que fueron a buscarla. Israel negó tener tropas en la zona.</p></div></div>
+      </div>
+    </div>
+    <aside class="notes">Tocar una por vez y dejar leer. Sin comentarios. Fuentes: Instituto Forense de Israel; Media Luna Roja Palestina; The Washington Post; Forensic Architecture.</aside>
+  </section>
+
+  <section data-era="hoy" data-enter="count" data-sound="viento:.12 dron:.1 topadora:.05" data-bg="gazasat" data-bg-opacity="0.16">
+    <div class="s">
+      <p class="kicker a">Octubre de 2025 · Octubre de 2026</p>
+      <h2 class="k">Alto el fuego. <em>Siguen muriendo.</em></h2>
+      <div class="three a">
+        <div><h3>10 oct. 2025</h3><p>Plan de Trump. Vuelven los 20 rehenes vivos, y en enero de 2026 el último cuerpo. Israel libera a cerca de 2.000 presos.</p></div>
+        <div><h3>Línea Amarilla</h3><p>Israel se retira a una línea que le deja el 53% de Gaza. Ya dice controlar cerca del 60%.</p></div>
+        <div><h3>Sigue la muerte</h3><p><b class="inl" data-count="1559">0</b> palestinos muertos desde el alto el fuego (Min. de Salud, 26 oct. 2026). En Cisjordania, cientos de ataques de colonos en la cosecha de aceitunas.</p></div>
+      </div>
+      <p class="small a">Faltan el desarme de Hamás, la retirada israelí y la reconstrucción.</p>
+    </div>
+    <aside class="notes">Los olivos otra vez: la cosecha de aceituna es hoy uno de los focos de violencia en Cisjordania. Fuente: OCHA, 22 y 29 de octubre de 2026.</aside>
+  </section>
+
+  <section data-era="hoy" data-enter="recognition ataque:7000" data-sound="radio:.05 viento:.08">
+    <div class="s two globe-s">
+      <div class="side">
+        <p class="kicker a">El mundo mira</p>
+        <h2 class="k">157 de <em>193</em></h2>
+        <p class="lead a">países de la ONU reconocen a Palestina, incluida <strong>Argentina</strong> desde 2010. Reino Unido, Francia, Canadá y Australia lo hicieron en 2025.</p>
+        <ul class="list a">
+          <li><strong>CIJ, 2024:</strong> la ocupación es ilegal.</li>
+          <li><strong>CPI, 2024:</strong> órdenes de arresto contra Netanyahu, Gallant y un jefe de Hamás.</li>
+          <li><strong>Genocidio:</strong> lo acusa Sudáfrica ante la CIJ y una comisión de la ONU lo concluyó en 2025. Israel lo niega. No hay fallo.</li>
+        </ul>
+      </div>
+      <div class="globe"></div>
+    </div>
+    <aside class="notes">Naranja: reconocen. Oscuro: no reconocen. El globo se puede girar. EE. UU. vetó el ingreso pleno de Palestina a la ONU.</aside>
+  </section>
+
+  <section data-era="silencio" data-t=".6" data-enter="reloj" data-sound="reloj:.4" class="rl">
+    <div class="s"><b class="rl-t">0:00</b><p class="lead">Hace este tiempo que estás acá.</p><p class="rl-a fadein">Cuando termine, podés irte.</p><p class="rl-b fadein"><em>Más de dos millones de personas en Gaza, no.</em></p></div>
+    <aside class="notes">El reloj es real: arrancó cuando empezó la presentación. No decir nada. Dejar que se lea.</aside>
+  </section>
+
+  <section data-era="hoy" data-sound="viento:.14">
+    <div class="s">
+      <p class="kicker a">¿Y ahora?</p>
+      <h2 class="k">Tres salidas. <em>Nadie quiere pagarlas.</em></h2>
+      <div class="flips qa a">
+        <div class="flip" data-flip><div class="face front"><b>Dos Estados</b></div><div class="face back"><p>Israel y Palestina, sobre la Línea Verde. Es lo que pide la ONU. La traban los asentamientos, Jerusalén y la desconfianza.</p></div></div>
+        <div class="flip" data-flip><div class="face front"><b>Un Estado</b></div><div class="face back"><p>Un solo país con los mismos derechos. Choca con los dos nacionalismos: cada pueblo quiere su propio Estado.</p></div></div>
+        <div class="flip" data-flip><div class="face front"><b>Confederación</b></div><div class="face back"><p>Dos Estados con fronteras abiertas y Jerusalén compartida. La proponen grupos mixtos. Hoy no tiene apoyo mayoritario.</p></div></div>
+      </div>
+    </div>
+    <aside class="notes">Tocar cada tarjeta. Hoy la mayoría de los israelíes y palestinos desconfía de que la paz sea posible, según encuestas.</aside>
+  </section>
+
+  <!-- ==================== CIERRE ==================== -->
+  <section id="c-cierre" data-era="alba" data-olive="brote" data-sound="viento:.1 pajaros:.14 pad:.12">
+    <div class="s fin">
+      <blockquote class="tale a">Vi llegar a todos.<br>Algunos me talaron, otros me plantaron.<br>Todavía doy aceitunas.<br>Arrancaron a miles de los míos.<br><em>Las dos orillas me llaman suyo.<br>Decime vos de quién soy.</em></blockquote>
+    </div>
+    <aside class="notes">El olivo rebrota. No es un final feliz. Decir: "Nosotros apagamos esto y nos vamos al recreo. Ellos no". Dejarlo unos segundos. No aplaudir.</aside>
+  </section>
+
+
+  <section data-era="alba" data-sound="viento:.1 pajaros:.1" class="farewell" data-bg="olivoraiz" data-bg-opacity="0.4">
+    <div class="s">
+      <h2 class="huge k">Gracias</h2>
+      <ul class="names a"><li>Juan Carratu</li><li>Bautista Casero</li><li>Santiago Jimenez</li><li>Gabriel Noguera</li><li>Tomas San Martin</li></ul>
+      <p class="byline a">Geografía · 4°1</p>
+      <p class="q a">¿Preguntas?</p>
+    </div>
+    <aside class="notes">Abrir preguntas.</aside>
+  </section>
+
+  <section data-era="alba" class="sources">
+    <div class="s">
+      <p class="kicker">Fuentes y créditos</p>
+      <div class="two">
+        <ul class="refs">
+          <li><a href="https://www.un.org/unispal/" target="_blank" rel="noopener">ONU · UNISPAL</a>: Resoluciones 181 y 242, documentos.</li>
+          <li><a href="https://www.ochaopt.org/" target="_blank" rel="noopener">OCHA oPt</a>: informes humanitarios, oct. 2026 y actualización 355.</li>
+          <li><a href="https://unosat.org/products/4213" target="_blank" rel="noopener">UNOSAT</a>: daños en Gaza, oct. 2025.</li>
+          <li><a href="https://palestine.un.org/en/324294-one-year-after-ceasefire-announcement-killings-continue-across-gaza" target="_blank" rel="noopener">ONU Palestina</a>: un año del alto el fuego.</li>
+          <li><a href="https://data.techforpalestine.org/docs/killed-in-gaza/" target="_blank" rel="noopener">Tech for Palestine</a>: lista nominal del Ministerio de Salud de Gaza, 31 oct. 2026.</li>
+          <li><a href="https://www.gov.il/en/pages/swords-of-iron-civilian-casualties" target="_blank" rel="noopener">Gobierno de Israel</a>: víctimas civiles, a dic. 2025.</li>
+          <li><a href="https://www.openstreetmap.org/relation/1410327" target="_blank" rel="noopener">OpenStreetMap</a>: trazado del muro; <a href="https://unispal.un.org/pdfs/WBbarrier_July09_excerpts.pdf" target="_blank" rel="noopener">OCHA</a>: 712 km.</li>
+          <li><a href="https://www.icj-cij.org/" target="_blank" rel="noopener">Corte Internacional de Justicia</a>: opiniones de 2004 y 2024.</li>
+          <li><a href="https://www.icc-cpi.int/" target="_blank" rel="noopener">Corte Penal Internacional</a>.</li>
+          <li><a href="https://www.unrwa.org/" target="_blank" rel="noopener">UNRWA</a>: refugiados.</li>
+          <li><a href="https://www.btselem.org/" target="_blank" rel="noopener">B'Tselem</a> y <a href="https://peacenow.org.il/en/settlements-watch/settlements-data/population" target="_blank" rel="noopener">Peace Now</a>: víctimas, colonos.</li>
+          <li><a href="https://www.eeas.europa.eu/sites/default/files/2026/documents/2025%20Report%20on%20Israeli%20settlements%20in%20the%20occupied%20West%20Bank.pdf" target="_blank" rel="noopener">Unión Europea</a>: informe de asentamientos 2025.</li>
+          <li><a href="https://www.bbc.com/news/articles/c5ydvz7nz4mo" target="_blank" rel="noopener">BBC</a> y <a href="https://www.cfr.org/articles/guide-trumps-twenty-point-gaza-peace-deal" target="_blank" rel="noopener">CFR</a>: rehenes y alto el fuego.</li>
+          <li><a href="https://en.wikipedia.org/wiki/Casualties_of_the_Gaza_war" target="_blank" rel="noopener">Wikipedia</a>: víctimas de la guerra, estudios en The Lancet; <a href="https://en.wikipedia.org/wiki/International_recognition_of_Palestine" target="_blank" rel="noopener">reconocimiento de Palestina</a>.</li>
+          <li><a href="https://avalon.law.yale.edu/subject_menus/mideast.asp" target="_blank" rel="noopener">Avalon Project, Yale</a>: textos originales.</li>
+          <li><a href="https://www.britannica.com/topic/Zionism" target="_blank" rel="noopener">Britannica</a>; B. Morris, <em>1948</em>; R. Khalidi, <em>The Hundred Years' War on Palestine</em>.</li>
+          <li>Datos: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles (Mapzen/AWS)</a>, <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a>. Iconos: <a href="https://game-icons.net/" target="_blank" rel="noopener">game-icons.net</a>, CC BY 3.0.</li>
+        </ul>
+        <p class="hint">Modelos 3D propios (Blender), hechos a partir de fotos de referencia; esquemáticos, no a escala.</p>
+        <ul id="credits" class="credits"></ul>
+      </div>
+      <p class="small">Mapas históricos y de áreas: aproximados. Cifras a octubre de 2026.</p>
+    </div>
+    <aside class="notes">Fuentes con enlaces reales.</aside>
+  </section>
+
+  </div></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
