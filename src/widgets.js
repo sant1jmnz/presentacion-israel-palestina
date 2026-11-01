@@ -38,8 +38,7 @@ const every = (slide, ms, fn) => { const id = setInterval(fn, ms); track(slide, 
 const later = (slide, ms, fn) => { const id = setTimeout(fn, ms); track(slide, { kill: () => clearTimeout(id) }); };
 export function stopSlide(slide) { (running.get(slide) || []).forEach((t) => t.kill()); running.delete(slide); }
 
-export function prepare(Reveal) {
-  deck = Reveal;
+export function prepare() {
   document.querySelectorAll('[data-img]').forEach((img) => { img.src = IMG[img.dataset.img] || ''; });
   document.querySelectorAll('[data-vid]').forEach((v) => { v.src = VID[v.dataset.vid] || ''; });
   document.querySelectorAll('section[data-bg]').forEach((s) => {
@@ -404,6 +403,27 @@ function steps(slide, name) {
   every(slide, 10000, () => { if (auto && k < list.length - 1) show(k + 1); });
 }
 
+// Texto a máquina, letra por letra, con los párrafos en orden
+function tipeo(slide) {
+  const ps = [...slide.querySelectorAll('.tp')];
+  ps.forEach((p) => { p.dataset.txt ??= p.textContent; p.textContent = ''; });
+  let i = 0, j = 0;
+  every(slide, 60, () => {
+    const p = ps[i]; if (!p) return;
+    p.textContent = p.dataset.txt.slice(0, Math.max(++j, 0));
+    if (j > 0 && j % 2) sfx('tecla');
+    if (j >= p.dataset.txt.length) { i++; j = -22; }
+  });
+}
+function eas(slide) { sfx('eas'); tipeo(slide); }
+// Una llamada real: se escribe, suena el disparo y se corta
+function llamada(slide) {
+  slide.querySelector('.ll-b').classList.remove('on');
+  tipeo(slide);
+  later(slide, 9000, () => { cut(); sfx('disparo'); slide.classList.add('hit'); });
+  later(slide, 15000, () => { slide.classList.remove('hit'); slide.querySelector('.ll-b').classList.add('on'); });
+}
+
 // Material real: el video arranca al entrar y queda en el último cuadro
 function real(slide) {
   const v = slide.querySelector('video');
@@ -542,43 +562,39 @@ function buildCredits() {
 
 /* ---------- Diez segundos: qué te llevás ---------- */
 function diez(slide) {
-  const items = [...slide.querySelectorAll('.dz-items button')], num = slide.querySelector('.dz-t'), end = slide.querySelector('.dz-end'), left = slide.querySelector('.dz-left');
-  const picked = new Set();
-  let n = 10, over = false;
-  items.forEach((b) => { b.className = ''; b.disabled = false; });
-  end.classList.remove('on'); num.textContent = n; left.textContent = '3';
-  items.forEach((b) => (b.onclick = () => {
-    if (over || picked.has(b) || picked.size === 3 || b.disabled) return;
-    picked.add(b); b.classList.add('pick'); left.textContent = 3 - picked.size; sfx('sello');
-  }));
-  const finish = () => {
-    over = true; cut(); sfx('portazo'); setScene('viento:.12 grave:.2');
-    items.forEach((b) => { if (!picked.has(b)) b.classList.add('gone'); });
-    end.querySelector('b').textContent = picked.size ? `Te llevaste: ${[...picked].map((b) => b.textContent.toLowerCase()).join(', ')}.` : 'No alcanzaste a llevar nada.';
-    end.classList.add('on');
-  };
+  const items = [...slide.querySelectorAll('.dz-items button')], num = slide.querySelector('.dz-t'), end = slide.querySelector('.dz-end');
+  const abuela = items[items.length - 1], picked = new Set();
+  let n = 10;
+  items.forEach((b) => { b.className = ''; });
+  end.classList.remove('on'); num.textContent = n;
+  const libres = () => items.filter((b) => b !== abuela && !picked.has(b) && !b.classList.contains('gone'));
+  const azar = () => { const r = libres(); return r[Math.floor(Math.random() * r.length)]; };
   const id = every(slide, 1000, () => {
-    if (over) return;
     num.textContent = --n;
-    const rest = items.filter((b) => !picked.has(b) && !b.disabled);
-    if (rest.length) { const b = rest[Math.floor(Math.random() * rest.length)]; if (n % 2 === 0) { b.disabled = true; b.classList.add('gone'); sfx('clic'); } }
-    if (n <= 0) { clearInterval(id); finish(); }
+    if ([8, 5, 2].includes(n)) { const b = azar(); picked.add(b); b.classList.add('pick'); sfx('sello'); } // elige sola: no te pregunta
+    else if (n > 1 && n % 2) { azar().classList.add('gone'); sfx('clic'); }
+    if (n <= 0) {
+      clearInterval(id); cut(); sfx('portazo'); setScene('viento:.12 grave:.2');
+      items.forEach((b) => { if (!picked.has(b)) b.classList.add('gone'); });
+      end.querySelector('b').textContent = `Te llevaste: ${[...picked].map((b) => b.textContent.toLowerCase()).join(', ')}. Tu abuela se quedó.`;
+      end.classList.add('on');
+    }
   });
 }
 
 /* ---------- Quince segundos: de la calle al refugio ---------- */
 function quince(slide) {
-  const num = slide.querySelector('.qz-t'), me = slide.querySelector('.qz-me'), run = slide.querySelector('.qz-run'), end = slide.querySelector('.qz-end');
+  const num = slide.querySelector('.qz-t'), me = slide.querySelector('.qz-me'), end = slide.querySelector('.qz-end');
   const X0 = 60, X1 = 1540;
   let x = X0, over = false;
-  end.classList.remove('on'); run.disabled = false; slide.classList.remove('hit', 'told'); num.textContent = '15'; me.setAttribute('cx', x);
-  run.onclick = () => {
+  end.classList.remove('on'); slide.classList.remove('hit', 'told'); num.textContent = '15'; me.setAttribute('cx', x);
+  every(slide, 620, () => { // corre sola y cada paso rinde menos: nunca llega
     if (over) return;
-    x += (X1 - 150 - x) * 0.085; // cada paso rinde menos: no se llega, por más rápido que hagan clic
-    gsap.to(me, { attr: { cx: x }, duration: 0.14 }); sfx('voto');
-  };
+    x += (X1 - 150 - x) * 0.085;
+    gsap.to(me, { attr: { cx: x }, duration: 0.5, ease: 'none' });
+  });
   const finish = () => {
-    over = true; run.disabled = true; cut(); end.classList.add('on');
+    over = true; cut(); end.classList.add('on');
     window.dispatchEvent(new CustomEvent('tension', { detail: 0 })); // silencio total: el disparo sale de la nada
     later(slide, 1500, () => {
       sfx('disparo');
@@ -592,22 +608,11 @@ function quince(slide) {
 
 /* ---------- El portón: sostener, esperar, que te cierren ---------- */
 function porton(slide) {
-  const arm = slide.querySelector('.pt-arm'), hold = slide.querySelector('.pt-hold'), say = slide.querySelector('.pt-say'), end = slide.querySelector('.pt-end');
-  const NO = ['Cerrado por seguridad.', 'Tu permiso venció ayer.', 'Volvé mañana.'];
-  let k = 0, tw;
-  const o = { a: 0 }, draw = () => arm.setAttribute('transform', `rotate(${-o.a * 78} 240 300)`);
-  o.a = 0; draw(); say.textContent = ''; end.classList.remove('on'); hold.disabled = false;
-  const close = () => { tw?.kill(); gsap.to(o, { a: 0, duration: 0.25, ease: 'power3.in', onUpdate: draw, onComplete: () => sfx('portazo') }); };
-  const finish = () => { hold.disabled = true; setScene('reloj:.3 viento:.1'); end.classList.add('on'); };
-  hold.onpointerdown = () => {
-    if (hold.disabled) return;
-    tw = gsap.to(o, { a: 0.86, duration: 5, ease: 'none', onUpdate: draw, onComplete: () => {
-      close(); say.textContent = NO[k++];
-      if (k === NO.length) later(slide, 1300, finish);
-    } });
-  };
-  hold.onpointerup = hold.onpointerleave = () => { if (tw?.isActive()) close(); };
-  later(slide, 40000, finish);
+  const say = slide.querySelector('.pt-say'), end = slide.querySelector('.pt-end');
+  const NO = ['6:00. Cerrado por seguridad.', '9:30. Tu permiso venció ayer.', '14:00. Volvé mañana.'];
+  say.textContent = ''; end.classList.remove('on');
+  NO.forEach((t, i) => later(slide, 3000 + i * 5000, () => { say.textContent = t; sfx('portazo'); }));
+  later(slide, 18000, () => { setScene('reloj:.3 viento:.1'); end.classList.add('on'); });
 }
 
 /* ---------- ¿A dónde vas? Gaza, huyendo de un punto a otro ---------- */
@@ -636,16 +641,15 @@ function adondeVas(slide) {
   pts.forEach((p) => p.g.classList.remove('gone')); num.textContent = '0'; end.classList.remove('on'); panel.innerHTML = first;
   later(slide, 2200, () => scorch(home[0], home[1]));
   let moved = 0;
-  slide.onclick = (e) => {
-    const t = e.target.closest('[data-ad]');
-    if (!t || t.classList.contains('gone')) return;
-    const i = +t.dataset.ad, p = pts[i], a = ADONDE[i];
-    t.classList.add('gone'); num.textContent = ++moved;
+  every(slide, 6000, () => { // te mueven de un punto a otro hasta que no queda ninguno
+    if (moved === pts.length) return;
+    const i = moved, p = pts[i], a = ADONDE[i];
+    p.g.classList.add('gone'); num.textContent = ++moved;
     trail.push([p.x, p.y]); route.setAttribute('points', trail.join(' '));
     panel.innerHTML = `<small>${a.w}</small><b>${a.n}</b>${a.t}`;
     gsap.to(me, { attr: { cx: p.x, cy: p.y }, duration: 1, ease: 'power1.inOut' });
-    later(slide, 1900, () => { scorch(p.x, p.y); if (moved === pts.length) later(slide, 1500, () => end.classList.add('on')); });
-  };
+    later(slide, 2600, () => { scorch(p.x, p.y); if (moved === pts.length) later(slide, 1500, () => end.classList.add('on')); });
+  });
 }
 
 /* ---------- Cerrá los ojos: solo sonido ---------- */
@@ -673,19 +677,11 @@ function oscuro(slide, k) {
 }
 
 /* ---------- Sin señal: el aviso llega y no te deja salir ---------- */
-let deck;
 function bloqueo(slide) {
   const msg = slide.querySelector('.bq-msg'), end = slide.querySelector('.bq-end'), st = slide.querySelector('.bq-st');
-  const LOCK = 10000;
-  let tries = 0;
   end.classList.remove('on'); st.textContent = 'Cargando el mapa…'; msg.classList.remove('off');
-  deck.configure({ keyboard: false, touch: false }); document.body.classList.add('locked');
-  const push = (e) => { if (e.type === 'keydown' || e.target.closest('.controls')) { e.stopPropagation(); e.preventDefault(); sfx('voto'); st.textContent = ['Sin señal', 'Reintentando…', 'Sin conexión', 'Reintentando…'][tries++ % 4]; gsap.fromTo(msg, { x: -8 }, { x: 0, duration: 0.25, ease: 'elastic.out(2,.3)' }); } };
-  window.addEventListener('keydown', push, true); window.addEventListener('click', push, true);
   later(slide, 3000, () => (st.textContent = 'Sin señal'));
-  const free = () => { deck.configure({ keyboard: true, touch: true }); document.body.classList.remove('locked'); window.removeEventListener('keydown', push, true); window.removeEventListener('click', push, true); deck.off('slidechanged', free); };
-  deck.on('slidechanged', free); // si se sale antes por el índice, no queda trabado
-  later(slide, LOCK, () => { free(); end.classList.add('on'); });
+  later(slide, 10000, () => end.classList.add('on'));
 }
 
 /* ---------- El reloj: el tiempo que llevás acá ---------- */
@@ -709,24 +705,21 @@ function ataque(slide, ms) {
 
 /* ---------- Bajo los escombros ---------- */
 function escombros(slide) {
-  const say = slide.querySelector('.ec-say'), crack = slide.querySelector('.ec-luz'), knock = slide.querySelector('.ec-golpe'), end = slide.querySelector('.ec-end');
+  const say = slide.querySelector('.ec-say'), crack = slide.querySelector('.ec-luz'), end = slide.querySelector('.ec-end');
   const LINES = ['Te despertás. No ves nada.', 'Tenés polvo en la boca.', 'No podés mover las piernas.', 'Arriba se oyen voces.'];
-  let n = 0;
-  end.classList.remove('on'); knock.style.visibility = 'hidden'; knock.disabled = false; say.textContent = ''; gsap.set(crack, { width: 460 });
+  end.classList.remove('on'); say.textContent = ''; gsap.set(crack, { width: 460 });
   LINES.forEach((t, i) => later(slide, 1200 + i * 3200, () => (say.textContent = t)));
-  later(slide, 14000, () => { knock.style.visibility = 'visible'; say.textContent = 'Golpeá. Que te escuchen.'; });
+  later(slide, 14000, () => { say.textContent = 'Golpeás.'; sfx('golpes'); });
+  later(slide, 16000, () => { sfx('golpes'); say.textContent = 'Te contestaron.'; });
+  later(slide, 20000, () => { sfx('golpes'); say.textContent = 'Golpeás.'; });
+  later(slide, 23000, () => { sfx('golpes'); say.textContent = 'Golpeás.'; });
   const leaveYou = () => {
-    knock.disabled = true; knock.style.visibility = 'hidden'; say.textContent = 'Las voces se alejan.'; setScene('respira:.8');
+    say.textContent = 'Las voces se alejan.'; setScene('respira:.8');
     track(slide, gsap.to(crack, { width: 0, duration: 9, ease: 'none' }));
     later(slide, 10000, () => { cut(); say.textContent = ''; });
     later(slide, 12500, () => end.classList.add('on'));
   };
-  knock.onclick = () => {
-    sfx('golpes');
-    if (++n === 1) later(slide, 1800, () => { sfx('golpes'); say.textContent = 'Te contestaron.'; });
-    if (n === 4) later(slide, 900, leaveYou);
-  };
-  later(slide, 26000, () => { if (!knock.disabled) leaveYou(); });
+  later(slide, 27000, leaveYou);
 }
 
 /* ---------- La tinta: el nombre en la piel ---------- */
@@ -747,4 +740,4 @@ function cinta(slide) {
   later(slide, 22000, () => b.classList.add('on'));
 }
 
-export const HOOKS = { real, ataque, escombros, tinta, cinta, oscuro, bloqueo, reloj, diez, quince, porton, adondeVas, count, timeline, agua, jerusalem, letters, population, vote, drawGreen, sixDays, hands, candle, wall, steps, archipelago, gazaOver, oct7, profile };
+export const HOOKS = { real, tipeo, eas, llamada, ataque, escombros, tinta, cinta, oscuro, bloqueo, reloj, diez, quince, porton, adondeVas, count, timeline, agua, jerusalem, letters, population, vote, drawGreen, sixDays, hands, candle, wall, steps, archipelago, gazaOver, oct7, profile };

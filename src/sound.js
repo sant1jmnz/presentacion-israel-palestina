@@ -4,7 +4,7 @@
 const REC = Object.fromEntries(Object.entries(import.meta.glob('./assets/audio/*.ogg', { eager: true, query: '?url', import: 'default' })).map(([p, u]) => [p.split('/').pop().split('.')[0], u]));
 const BOOST = 2; // las grabaciones vienen normalizadas a -18 LUFS
 
-let ctx, master, noise, deafen, detune, impact, room, enabled = true;
+let tape, ctx, master, noise, deafen, detune, impact, room, enabled = true;
 const voices = {};
 const FADE = 1.8;
 
@@ -104,6 +104,9 @@ export const SFX = {
   hojas: () => burst(master, { dur: 0.7, type: 'bandpass', freq: 3400, sweep: 1800, gain: 0.1, q: 0.6 }),
   campana: () => bell(master, 330, 0.2),
   disparo: () => { shot('tiro', impact, 1); shot('tiro', room, 0.7); }, // grabación real saturada, sin pasar por el compresor, con eco de la calle
+  estatica: () => burst(master, { dur: 0.14, type: 'highpass', freq: 2600, gain: 0.16 }),
+  eas: () => [853, 960].forEach((freq) => tone(impact, { freq, dur: 6, gain: 0.13, type: 'square', attack: 0.005 })), // el tono real de las alertas de emergencia
+  tecla: () => burst(master, { dur: 0.02, freq: 2400, gain: 0.1 }),
   clic: () => burst(master, { dur: 0.035, freq: 1800, sweep: 600, gain: 0.3 }),
   zumbido: () => tone(master, { freq: 7600, dur: 5, gain: 0.05, attack: 0.05 }), // el oído después de la explosión
   dron: () => { burst(master, { dur: 4, freq: 900, sweep: 160, gain: 0.3, q: 2 }); tone(master, { freq: 62, dur: 4, gain: 0.3, attack: 1.8 }); }, // pasa por arriba
@@ -142,7 +145,7 @@ const applyTension = () => {
   set(low.gain, 0.3 * t ** 1.5); set(high.gain, 0.009 * t ** 2); set(beat.gain, 0.12 * t ** 2); set(climb.gain, 0.09 * t ** 2); set(rough.gain, 0.09 * t ** 2);
   set(detune.offset, -140 * t); set(wobble.gain, 35 * t);
 };
-export function setTension(t) { tension = t; applyTension(); }
+export function setTension(t) { tension = t; applyTension(); tape?.gain.setTargetAtTime(t, ctx.currentTime, 1.5); }
 // Algo que se acerca (Bach, 2008: lo que sube de volumen activa la amígdala más que lo que se aleja). La mitad de las veces no pasa nada: no saber estresa más
 function looming(hit) {
   const n = ctx.currentTime, b = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
@@ -212,6 +215,10 @@ function start() {
   room.buffer = ir;
   ['aplauso', 'estallido', 'paso', 'susurro', 'tiro'].forEach(load);
   startTension();
+  // Siseo de cinta y zumbido de línea: crecen con la tensión
+  tape = ctx.createGain(); tape.gain.value = 0; tape.connect(master);
+  { const h = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); h.buffer = noise; h.loop = true; f.type = 'highpass'; f.frequency.value = 3200; g.gain.value = 0.03; h.connect(f).connect(g).connect(tape); h.start(); }
+  tone(tape, { freq: 50, dur: 86400, gain: 0.035, type: 'sawtooth', attack: 2 });
   setScene(current);
 }
 // El navegador solo deja sonar después de un gesto: el primer clic o tecla lo enciende.

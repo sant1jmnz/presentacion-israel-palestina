@@ -20,9 +20,29 @@ import { prepare, HOOKS, stopSlide, clock } from './widgets.js';
 import { HOOKS3D, leave3D, setOlive } from './scene3d.js';
 import { initSound, setScene, setTension, cut, sfx } from './sound.js';
 
-document.body.insertAdjacentHTML('beforeend', '<div id="unease"></div><svg id="sombra" viewBox="0 0 400 200"><path d="M200 20 215 85 400 95V105L215 110 208 170 240 185V192L200 184 160 192V185L192 170 185 110 0 105V95L185 85Z"/></svg><svg id="figura" viewBox="0 0 200 600"><circle cx="100" cy="62" r="52"/><path d="M0 600V210Q6 132 72 122H128Q194 132 200 210V600Z"/></svg><div id="flash"></div><div id="apagon"></div>');
-prepare(Reveal);
+document.body.insertAdjacentHTML('beforeend', '<div id="unease"></div><svg id="sombra" viewBox="0 0 400 200"><path d="M200 20 215 85 400 95V105L215 110 208 170 240 185V192L200 184 160 192V185L192 170 185 110 0 105V95L185 85Z"/></svg><svg id="figura" viewBox="0 0 200 600"><circle cx="100" cy="62" r="52"/><path d="M0 600V210Q6 132 72 122H128Q194 132 200 210V600Z"/></svg><div id="flash"></div><div id="apagon"></div><div id="cinta"><canvas width="320" height="180"></canvas><i></i><b class="ct-a"></b><b class="ct-b"></b></div>');
+prepare();
+document.querySelectorAll('.slides > section').forEach((s) => { if (['tierra', 'mandato'].includes(s.dataset.era)) { s.dataset.transition = 'fade'; s.dataset.backgroundTransition = 'fade'; } });
 initSound(document.getElementById('soundBtn'));
+
+// Toda la presentación es una cinta vieja: grano, contador y cortes con estática
+const cinta = document.getElementById('cinta'), grainCtx = cinta.querySelector('canvas').getContext('2d');
+const grain = Array.from({ length: 6 }, () => {
+  const f = grainCtx.createImageData(320, 180);
+  for (let i = 0; i < f.data.length; i += 4) { f.data[i] = f.data[i + 1] = f.data[i + 2] = Math.random() * 255; f.data[i + 3] = 255; }
+  return f;
+});
+const pad = (n) => String(n).padStart(2, '0');
+let tick = 0;
+setInterval(() => {
+  grainCtx.putImageData(grain[tick++ % grain.length], 0, 0);
+  const s = clock.t0 ? Math.floor((Date.now() - clock.t0) / 1000) : 0; // el mismo reloj que la diapositiva del tiempo
+  cinta.querySelector('.ct-b').textContent = `SP ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+}, 80);
+function statics(ms = 130) {
+  cinta.classList.add('st'); setTimeout(() => cinta.classList.remove('st'), ms);
+  sfx('estatica');
+}
 
 // data-enter="map:norte count" → HOOKS.map(slide, 'norte'), …
 let level = 0;
@@ -32,15 +52,20 @@ function tension(t) {
   setTension(level);
 }
 window.addEventListener('tension', (e) => tension(e.detail));
+// La película empieza normal: el contexto es tranquilo y todo se pudre desde la guerra de 1948
+const CALMA = ['tierra', 'mandato'];
 function enter(slide) {
-  const era = slide.dataset.era || 'tierra';
-  tension(slide.dataset.t ?? 0.7 * Reveal.getIndices(slide).h / (Reveal.getTotalSlides() - 1));
+  const era = slide.dataset.era || 'tierra', calma = CALMA.includes(era), roto = document.body.classList.contains('calma') && !calma;
+  document.body.classList.toggle('calma', calma);
+  tension(calma ? slide.dataset.t ?? 0 : slide.dataset.t ?? 0.35 + 0.5 * Reveal.getIndices(slide).h / (Reveal.getTotalSlides() - 1));
+  if (roto) statics(900); // acá se rompe la cinta
   if (document.body.dataset.era !== era && (era === 'ceniza' || era === 'silencio')) cut(); // se corta en seco, no se funde
   document.body.dataset.era = era;
   setScene(slide.dataset.sound || '');
   setOlive(slide.dataset.olive);
   document.body.dataset.olive = slide.dataset.olive || '';
   document.getElementById('whisper').classList.remove('on');
+  cinta.querySelector('.ct-a').textContent = `PLAY  CINTA ${pad(Reveal.getIndices(slide).h + 1)}`;
   (slide.dataset.enter || '').split(/\s+/).filter(Boolean).forEach((spec) => {
     const [name, arg] = spec.split(':');
     (HOOKS[name] || HOOKS3D[name])?.(slide, arg);
@@ -52,7 +77,8 @@ const shade = document.getElementById('sombra'), figure = document.getElementByI
 const rnd = (a, b) => a + Math.random() * (b - a);
 function haunt() {
   setTimeout(() => {
-    if (level > 0.4) {
+    if (level > 0.5 && Math.random() < 0.4) statics(320); // se pierde la señal
+    else if (level > 0.4) {
       if (Math.random() < 0.5) {
         // Alguien enorme, más alto que la pantalla, al borde de la vista
         figure.style.cssText = Math.random() < 0.5 ? `left:${rnd(-14, -4)}vw` : `right:${rnd(-14, -4)}vw`;
@@ -90,11 +116,15 @@ function leave(slide) {
 Reveal.initialize({
   width: 1920, height: 1080, margin: 0, minScale: 0.1, maxScale: 4,
   center: false, hash: true, controlsTutorial: false,
-  transition: 'fade', backgroundTransition: 'fade', transitionSpeed: 'slow',
+  transition: 'none', backgroundTransition: 'none',
   slideNumber: 'c/t', plugins: [Notes],
 }).then(() => enter(Reveal.getCurrentSlide()));
 
-Reveal.on('slidechanged', (e) => { clock.t0 ??= Date.now(); leave(e.previousSlide); enter(e.currentSlide); });
+Reveal.on('slidechanged', (e) => {
+  clock.t0 ??= Date.now();
+  if (level > 0.3 && !CALMA.includes(e.currentSlide.dataset.era)) statics();
+  leave(e.previousSlide); enter(e.currentSlide);
+});
 
 // Tras tocar un control, devolver el foco para que las flechas sigan pasando diapositivas.
 document.addEventListener('pointerup', () => setTimeout(() => document.activeElement?.blur?.(), 0));
