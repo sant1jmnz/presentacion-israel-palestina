@@ -39,6 +39,8 @@ function tone(out, { t = ctx.currentTime, dur = 1, freq = 220, gain = 0.3, type 
   o.connect(g).connect(out); o.start(t); o.stop(t + dur + 0.05);
 }
 // Repite un sonido a intervalos irregulares mientras la capa esté audible
+const CAJITA = [659, 659, 784, 659, 659, 784, 659, 784, 1047, 988, 880, 880, 784];
+let cajitaN = 0;
 const scatter = (min, max, fn) => (out, v) => {
   const go = () => {
     if (v.level > 0.001) fn(out);
@@ -71,6 +73,7 @@ const bell = (out, f0, g = 0.28) => [1, 2, 2.4, 3, 4.2].forEach((m, i) => tone(o
 
 const MAKE = {
   ...Object.fromEntries(['viento', 'mar', 'pajaros', 'campanas', 'maquina', 'telegrafo', 'reloj', 'multitud', 'barco', 'piedras', 'disparos', 'explosiones', 'aviones', 'sirena', 'helicoptero', 'topadora', 'latido', 'fuego'].map((n) => [n, (o) => sample(n, o)])),
+  cajita: scatter(620, 1000, (o) => tone(o, { freq: CAJITA[cajitaN++ % CAJITA.length] * (1 + (Math.random() - 0.5) * 0.025), dur: 2, gain: 0.2, attack: 0.004 })), // nana desafinada: cada nota llega un poco tarde
   llanto: around('llanto', 0.07), sollozo: around('sollozo', 0.05), bebe: around('bebe', 0.11), bebe2: around('bebe2', 0.09), grito: around('grito', 0.13), respira: (o) => sample('respira', o),
   adhan: (o) => sample('adhan', o, 1),
   declaracion: (o) => sample('declaracion', o, 1),
@@ -133,19 +136,19 @@ export function setScene(spec = '') {
   Object.entries(voices).forEach(([n, v]) => {
     v.level = want[n] || 0;
     v.out.gain.cancelScheduledValues(t);
-    v.out.gain.setValueAtTime(v.out.gain.value, t);
+    v.out.gain.setValueAtTime(v.off ? 0 : v.out.gain.value, t); v.off = false; // .value todavía no refleja un cut() recién hecho
     v.out.gain.linearRampToValueAtTime(v.level, t + FADE);
   });
 }
 // Tensión 0-1, marcada por diapositiva. Debajo de todo: batidos graves, escala infinita, un pitido al borde del oído y un corazón
 let tension = 0, low, high, beat, climb, wobble, rough, clash;
-const applyTension = () => {
+const applyTension = (ya) => {
   if (!low) return;
-  const n = ctx.currentTime, set = (p, v) => p.setTargetAtTime(v, n, 1.5), t = tension;
-  set(low.gain, 0.3 * t ** 1.5); set(high.gain, 0.009 * t ** 2); set(beat.gain, 0.12 * t ** 2); set(climb.gain, 0.09 * t ** 2); set(rough.gain, 0.09 * t ** 2);
+  const n = ctx.currentTime, set = (p, v) => p.setTargetAtTime(v, n, ya ? 0.01 : 1.5), t = tension;
+  set(low.gain, 0.3 * t ** 1.5); set(high.gain, 0.03 * t ** 2); set(beat.gain, 0.12 * t ** 2); set(climb.gain, 0.09 * t ** 2); set(rough.gain, 0.09 * t ** 2);
   set(detune.offset, -140 * t); set(wobble.gain, 35 * t);
 };
-export function setTension(t) { tension = t; applyTension(); tape?.gain.setTargetAtTime(t, ctx.currentTime, 1.5); }
+export function setTension(t, ya) { tension = t; applyTension(ya); tape?.gain.setTargetAtTime(t, ctx.currentTime, ya ? 0.01 : 1.5); }
 // Algo que se acerca (Bach, 2008: lo que sube de volumen activa la amígdala más que lo que se aleja). La mitad de las veces no pasa nada: no saber estresa más
 function looming(hit) {
   const n = ctx.currentTime, b = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
@@ -197,7 +200,7 @@ function startTension() {
 export function cut() { // silencio seco: corta todo de golpe
   if (!ctx) return;
   const t = ctx.currentTime;
-  Object.values(voices).forEach((v) => { v.level = 0; v.out.gain.cancelScheduledValues(t); v.out.gain.setValueAtTime(0, t); });
+  Object.values(voices).forEach((v) => { v.level = 0; v.off = true; v.out.gain.cancelScheduledValues(t); v.out.gain.setValueAtTime(0, t); });
 }
 function start() {
   if (ctx) { ctx.resume(); return; }

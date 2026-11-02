@@ -480,8 +480,8 @@ function buildField(canvas, key) {
   scene.background = new THREE.Color('#050505');
   scene.fog = new THREE.Fog('#050505', 4, 30);
   const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 2000);
-  scene.add(new THREE.HemisphereLight('#aab4c4', '#1a1612', 1));
-  const l = new THREE.DirectionalLight('#dfe6f0', 2.2); l.position.set(-4, 3, 2); scene.add(l);
+  scene.add(new THREE.HemisphereLight('#c4d0e4', '#1a1612', 2.2));
+  const l = new THREE.DirectionalLight('#dfe6f0', 3); l.position.set(-4, 3, 2); scene.add(l);
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshStandardMaterial({ color: '#14110d', roughness: 1 }));
   ground.rotation.x = -Math.PI / 2; scene.add(ground);
   // Cuerpo envuelto en tela: pies, hombros, cuello, cabeza. De cerca, con las vueltas de la tela
@@ -525,11 +525,11 @@ function mortajas(slide, key) {
   const f = (fields[key] ??= buildField(canvas, key)), { nombres } = EDADES[key];
   const [tip, end] = ['.mj-tip', '.mj-end'].map((c) => slide.querySelector(c));
   end.classList.remove('on'); tip.textContent = ''; f.halo.visible = false;
-  const o = { t: 0 }, look = new THREE.Vector3();
+  const t1 = 12 / (f.size * 0.62), o = { t: t1 }, look = new THREE.Vector3(); // arranca desde arriba: de cerca parecen muñecos
   const place = () => {
     const t = o.t;
     f.camera.position.set(lerp(0.35, 0, t), lerp(0.75, f.size * 0.62, t), lerp(f.near + 1.5, f.near + f.size * 0.3, t));
-    look.set(0, 0, lerp(f.near - 2.5, 0, t)); f.camera.lookAt(look);
+    look.set(0, 0, lerp(f.near - 6, 0, t)); f.camera.lookAt(look);
     f.scene.fog.near = lerp(4, f.size * 2, t); f.scene.fog.far = lerp(30, f.size * 5, t);
   };
   place();
@@ -552,7 +552,7 @@ function mortajas(slide, key) {
   const t0 = performance.now(), ease = gsap.parseEase('power1.in');
   active.add(() => {
     const x = (performance.now() - t0 - 2500) / 5000;
-    if (x > 0) { o.t = ease(Math.min(x, 1)); place(); }
+    if (x > 0) { o.t = lerp(t1, 1, ease(Math.min(x, 1))); place(); }
     if (x >= 1) end.classList.add('on');
     f.renderer.render(f.scene, f.camera);
   }, slide);

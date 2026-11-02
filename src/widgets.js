@@ -416,6 +416,14 @@ function tipeo(slide) {
   });
 }
 function eas(slide) { sfx('eas'); tipeo(slide); }
+// Un nombre con marcador, de a poco, sobre la piel
+function pierna(slide) {
+  const n = slide.querySelector('.pn-n'), b = slide.querySelector('.pn-b');
+  b.classList.remove('on');
+  track(slide, gsap.fromTo(n, { clipPath: 'inset(-20% 0 -20% 100%)' }, { clipPath: 'inset(-20% 0 -20% 0%)', duration: 3.6, delay: 1.5, ease: 'none' }));
+  for (let i = 0; i < 12; i++) later(slide, 1500 + i * 300, () => sfx('papel'));
+  later(slide, 8000, () => b.classList.add('on'));
+}
 // Una llamada real: se escribe, suena el disparo y se corta
 function llamada(slide) {
   slide.querySelector('.ll-b').classList.remove('on');
@@ -563,19 +571,20 @@ function buildCredits() {
 /* ---------- Diez segundos: qué te llevás ---------- */
 function diez(slide) {
   const items = [...slide.querySelectorAll('.dz-items button')], num = slide.querySelector('.dz-t'), end = slide.querySelector('.dz-end');
-  const abuela = items[items.length - 1], picked = new Set();
+  const abuela = items[items.length - 1], picked = new Set(), rest = slide.querySelector('.dz-rest');
   let n = 10;
   items.forEach((b) => { b.className = ''; });
-  end.classList.remove('on'); num.textContent = n;
+  end.classList.remove('on'); num.textContent = n; rest.textContent = 'Agarraste: nada todavía.'; rest.style.visibility = '';
   const libres = () => items.filter((b) => b !== abuela && !picked.has(b) && !b.classList.contains('gone'));
   const azar = () => { const r = libres(); return r[Math.floor(Math.random() * r.length)]; };
   const id = every(slide, 1000, () => {
     num.textContent = --n;
-    if ([8, 5, 2].includes(n)) { const b = azar(); picked.add(b); b.classList.add('pick'); sfx('sello'); } // elige sola: no te pregunta
+    if ([8, 5, 2].includes(n)) { const b = azar(); picked.add(b); b.classList.add('pick'); sfx('sello'); rest.textContent = `Agarraste: ${[...picked].map((x) => x.textContent.toLowerCase()).join(', ')}.`; } // elige sola: no te pregunta
     else if (n > 1 && n % 2) { azar().classList.add('gone'); sfx('clic'); }
     if (n <= 0) {
       clearInterval(id); cut(); sfx('portazo'); setScene('viento:.12 grave:.2');
       items.forEach((b) => { if (!picked.has(b)) b.classList.add('gone'); });
+      rest.style.visibility = 'hidden';
       end.querySelector('b').textContent = `Te llevaste: ${[...picked].map((b) => b.textContent.toLowerCase()).join(', ')}. Tu abuela se quedó.`;
       end.classList.add('on');
     }
@@ -596,10 +605,11 @@ function quince(slide) {
   const finish = () => {
     over = true; cut(); end.classList.add('on');
     window.dispatchEvent(new CustomEvent('tension', { detail: 0 })); // silencio total: el disparo sale de la nada
-    later(slide, 1500, () => {
-      sfx('disparo');
+    later(slide, 1500, () => { // el fogonazo en la cara: un solo destello blanco y todo negro
+      sfx('disparo'); slide.classList.add('hit');
+      document.getElementById('fogonazo').animate([{ opacity: 1 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }], { duration: 320, easing: 'ease-out' });
     });
-    later(slide, 2100, () => { slide.classList.add('hit'); sfx('pitido'); });
+    later(slide, 1900, () => sfx('pitido'));
     later(slide, 8100, () => slide.classList.add('told'));
   };
   const o = { t: 15 };
@@ -740,4 +750,4 @@ function cinta(slide) {
   later(slide, 22000, () => b.classList.add('on'));
 }
 
-export const HOOKS = { real, tipeo, eas, llamada, ataque, escombros, tinta, cinta, oscuro, bloqueo, reloj, diez, quince, porton, adondeVas, count, timeline, agua, jerusalem, letters, population, vote, drawGreen, sixDays, hands, candle, wall, steps, archipelago, gazaOver, oct7, profile };
+export const HOOKS = { real, tipeo, eas, pierna, llamada, ataque, escombros, tinta, cinta, oscuro, bloqueo, reloj, diez, quince, porton, adondeVas, count, timeline, agua, jerusalem, letters, population, vote, drawGreen, sixDays, hands, candle, wall, steps, archipelago, gazaOver, oct7, profile };
