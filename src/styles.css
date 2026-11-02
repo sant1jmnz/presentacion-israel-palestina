@@ -411,7 +411,7 @@ body[data-olive="relato"] #whisper { right: auto; left: 6%; }
 
 /* Las mortajas */
 .mortajas canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-.mj-tip { position: absolute; right: 124px; top: 70px; margin: 0; font-size: 34px; color: #fff; text-shadow: 0 0 10px #000, 0 0 10px #000; pointer-events: none; }
+.mj-tip { position: absolute; right: 124px; top: 136px; margin: 0; font-size: 34px; color: #fff; text-shadow: 0 0 10px #000, 0 0 10px #000; pointer-events: none; }
 .mj-end { position: absolute; left: 124px; right: 124px; bottom: 56px; background: rgba(0,0,0,.76); padding: 18px 28px; display: grid; grid-template-columns: auto 1fr; gap: 6px 36px; align-items: center; opacity: 0; transition: opacity 2s; pointer-events: none; }
 .mj-end.on { opacity: 1; }
 .mj-end b { grid-row: span 2; font-size: 150px; line-height: 1; color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
