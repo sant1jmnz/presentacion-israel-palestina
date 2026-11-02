@@ -78,6 +78,11 @@ function boom(out, { from = 110, to = 30, dur = 2.2, gain = 1.4 }) {
 }
 // Todo lo demás se aparta un instante: por contraste el golpe suena más grande que el máximo del parlante
 const duck = () => { const n = ctx.currentTime, g = master.gain; g.cancelScheduledValues(n); g.setValueAtTime(0.1, n); g.setTargetAtTime(0.9, n + 0.3, 0.6); };
+// Un susurro que pasa de un parlante al otro por detrás de la gente
+function cruza() {
+  const n = ctx.currentTime, p = ctx.createStereoPanner(), d = Math.random() < 0.5 ? 1 : -1;
+  p.pan.setValueAtTime(d, n); p.pan.linearRampToValueAtTime(-d, n + 7); p.connect(master); shot('susurro', p, tension * 1.4);
+}
 const bell = (out, f0, g = 0.28) => [1, 2, 2.4, 3, 4.2].forEach((m, i) => tone(out, { freq: f0 * m, dur: 5 - i * 0.7, gain: g / (i + 1), attack: 0.005 }));
 
 const MAKE = {
@@ -196,15 +201,16 @@ function startTension() {
   const phantom = () => setTimeout(() => {
     const r = Math.random();
     if (tension > 0.3 && enabled) {
-      if (r < 0.35) far('susurro', tension);
-      else if (r < 0.5) far('paso', 1);
-      else if (r < 0.65) SFX.golpes();
-      else if (r < 0.85) looming(tension > 0.6 && Math.random() < 0.5);
-      else { const n = ctx.currentTime; master.gain.setTargetAtTime(0.02, n, 0.05); master.gain.setTargetAtTime(0.9, n + 1.4, 0.05); }
+      if (r < 0.3) cruza();
+      else if (r < 0.42) far('paso', 1);
+      else if (r < 0.54) SFX.golpes();
+      else if (r < 0.68) tone(master, { freq: 31, dur: 14, gain: 0.7, attack: 6 }); // casi no se oye: se siente
+      else if (r < 0.82) looming(tension > 0.6 && Math.random() < 0.5);
+      else { const n = ctx.currentTime, h = 3 + Math.random() * 2; [master, war].forEach((m) => { m.gain.setTargetAtTime(0.02, n, 0.05); m.gain.setTargetAtTime(m === war ? 1 : 0.9, n + h, 0.05); }); }
     }
     clash.forEach((o) => o.detune.setValueAtTime(Math.random() * 90 - 45, ctx.currentTime)); // salto brusco de afinación
     phantom();
-  }, 9000 + Math.random() * 16000);
+  }, 7000 + Math.random() * 11000);
   phantom();
   applyTension();
 }

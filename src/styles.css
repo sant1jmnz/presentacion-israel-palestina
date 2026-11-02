@@ -647,3 +647,21 @@ body:not(.calma) .reveal .dz-items button.gone { opacity: .22 !important; visibi
 .tipo.pierna::before { background: radial-gradient(ellipse at 50% 42%, #d9a27e, #a8704e 60%, #5d3524); }
 .pn-n { font-family: "Segoe Print", "Comic Sans MS", cursive !important; font-size: 300px; line-height: 1.2; margin: 0; color: #15130f !important; transform: rotate(-3deg); }
 .pn-b { font-size: 40px; margin: 0; color: #1c120b !important; font-weight: 600; max-width: 1200px; }
+
+/* Tiniebla: desde 1948 solo se ve lo que alumbra una luz que se mueve sola */
+#linterna { position: fixed; left: -100vw; top: -100vh; width: 300vw; height: 300vh; z-index: 38; pointer-events: none; opacity: 0; transition: opacity 1.5s; background: radial-gradient(circle at center, transparent 38vw, rgba(0,0,0,.94) 74vw); animation: ronda 48s ease-in-out infinite; }
+#linterna i { position: absolute; inset: 0; background: #000; opacity: 0; }
+body.tiniebla #linterna { opacity: .65; }
+body.tiniebla:has(.real.present) #linterna { opacity: .8; }
+@keyframes ronda { 0%, 100% { transform: translate(-20vw, -13vh); } 25% { transform: translate(17vw, -7vh); } 50% { transform: translate(22vw, 13vh); } 75% { transform: translate(-13vw, 15vh); } }
+#mancha { position: fixed; width: 44vw; height: 44vw; z-index: 39; pointer-events: none; opacity: 0; border-radius: 47% 53% 41% 59%; background: radial-gradient(circle, #000 42%, rgba(20,0,0,.8) 62%, transparent 72%); filter: blur(10px); }
+body:has(.real.present) #mancha { opacity: 0 !important; }
+/* Los títulos cuestan: salen de la niebla y la palabra clave llega última, sangrando */
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]).present h2 { animation: niebla 1.8s ease-out both; }
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]) h2 em * { font-family: "Nosifer", cursive !important; }
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]) h2 em { font-family: "Nosifer", cursive !important; font-size: .62em; line-height: 1.5; color: #d10f2a !important; text-shadow: 0 0 22px rgba(170,0,10,.6); }
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]).present h2 em { display: inline-block; animation: niebla 1.6s ease-out 1.5s both; }
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]) h2 em .w { overflow: visible; }
+.reveal section:is([data-era="ceniza"], [data-era="setenta"], [data-era="hoy"]) h2 em .wi { animation: none; transform: none; }
+@keyframes niebla { from { opacity: 0; filter: blur(16px); } to { opacity: 1; filter: blur(0); } }
+@media (prefers-reduced-motion: reduce) { #linterna { animation: none; } .reveal section h2, .reveal section h2 em { animation: none !important; } }

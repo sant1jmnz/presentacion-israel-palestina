@@ -12,6 +12,7 @@ import '@fontsource/ibm-plex-sans/300.css';
 import '@fontsource/ibm-plex-sans/400.css';
 import '@fontsource/ibm-plex-sans/600.css';
 import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/nosifer/400.css';
 import './styles.css';
 
 import Reveal from 'reveal.js';
@@ -21,7 +22,7 @@ import { HOOKS3D, leave3D, setOlive } from './scene3d.js';
 import gsap from 'gsap';
 import { initSound, setScene, setTension, cut, sfx } from './sound.js';
 
-document.body.insertAdjacentHTML('beforeend', '<div id="unease"></div><svg id="sombra" viewBox="0 0 400 200"><path d="M200 20 215 85 400 95V105L215 110 208 170 240 185V192L200 184 160 192V185L192 170 185 110 0 105V95L185 85Z"/></svg><svg id="figura" viewBox="0 0 200 600"><circle cx="100" cy="62" r="52"/><path d="M0 600V210Q6 132 72 122H128Q194 132 200 210V600Z"/></svg><div id="flash"></div><div id="apagon"></div><div id="fogonazo"></div><div id="cinta"><canvas width="320" height="180"></canvas><i></i><b class="ct-a"></b><b class="ct-b"></b><b class="ct-c"></b></div>');
+document.body.insertAdjacentHTML('beforeend', '<div id="linterna"><i></i></div><div id="mancha"></div><div id="unease"></div><svg id="sombra" viewBox="0 0 400 200"><path d="M200 20 215 85 400 95V105L215 110 208 170 240 185V192L200 184 160 192V185L192 170 185 110 0 105V95L185 85Z"/></svg><svg id="figura" viewBox="0 0 200 600"><circle cx="100" cy="62" r="52"/><path d="M0 600V210Q6 132 72 122H128Q194 132 200 210V600Z"/></svg><div id="flash"></div><div id="apagon"></div><div id="fogonazo"></div><div id="cinta"><canvas width="320" height="180"></canvas><i></i><b class="ct-a"></b><b class="ct-b"></b><b class="ct-c"></b></div>');
 prepare();
 document.querySelectorAll('.slides > section').forEach((s) => { if (['tierra', 'mandato'].includes(s.dataset.era)) { s.dataset.transition = 'fade'; s.dataset.backgroundTransition = 'fade'; } });
 initSound(document.getElementById('soundBtn'));
@@ -60,6 +61,10 @@ function enter(slide) {
   turno++;
   const era = slide.dataset.era || 'tierra', calma = CALMA.includes(era), roto = document.body.classList.contains('calma') && !calma;
   document.body.classList.toggle('calma', calma);
+  [figure, mancha].forEach((x) => x.getAnimations().forEach((a) => a.cancel()));
+  const tiniebla = !calma && !slide.matches(`${INTOCABLES}, .cn, .ec, .bq, .diez, .adonde, .porton, .oct7, .oscuro`);
+  document.body.classList.toggle('tiniebla', tiniebla);
+  if (tiniebla) linterna.firstChild.animate([{ opacity: 1 }, { opacity: 1, offset: 0.2 }, { opacity: 0 }], { duration: 2600 }); // cada imagen sale del negro
   if ('corte' in slide.dataset) cut(); // final: se acabó la cinta, de golpe
   tension(calma ? slide.dataset.t ?? 0 : slide.dataset.t ?? 0.35 + 0.5 * Reveal.getIndices(slide).h / (Reveal.getTotalSlides() - 1), 'corte' in slide.dataset);
   if (roto) statics(900); // acá se rompe la cinta
@@ -79,13 +84,23 @@ function enter(slide) {
 }
 // Una sombra al borde de la vista, y cada tanto una frase que casi no se llega a leer. Nada repetido ni rápido en serie: sin riesgo de fotosensibilidad
 const FRASES = ['¿Y si fueras vos?', 'Te estás acostumbrando.', 'No mires para otro lado.', '¿De qué lado estás?', 'Ya elegiste.', 'Seguro algo habrán hecho.', 'El número ya no te impresiona.', 'Ya pensaste en otra cosa.'];
-const shade = document.getElementById('sombra'), figure = document.getElementById('figura'), flash = document.getElementById('flash');
+const shade = document.getElementById('sombra'), figure = document.getElementById('figura'), flash = document.getElementById('flash'), mancha = document.getElementById('mancha'), linterna = document.getElementById('linterna');
 const rnd = (a, b) => a + Math.random() * (b - a);
 const figura = () => {
   // Alguien enorme, más alto que la pantalla, al borde de la vista
   figure.style.cssText = Math.random() < 0.5 ? `left:${rnd(-14, -4)}vw` : `right:${rnd(-14, -4)}vw`;
   figure.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 0.85, offset: 0.3 }, { opacity: 0.85, offset: 0.7 }, { opacity: 0, transform: 'scale(1.1)' }], { duration: 3600 });
 };
+// Lo que cambia sin aviso. Sin sonido: nadie sabe si estaba desde antes
+const silueta = () => {
+  figure.style.cssText = `left:${rnd(12, 82)}vw;height:30vh;bottom:-1vh;filter:blur(4px)`;
+  figure.animate([{ opacity: 0 }, { opacity: 0.75, offset: 0.35 }, { opacity: 0.75, offset: 0.9 }, { opacity: 0 }], { duration: 15000 });
+};
+const crece = () => {
+  mancha.style.cssText = `left:${rnd(-10, 70)}vw;top:${rnd(-10, 60)}vh`;
+  mancha.animate([{ opacity: 0, transform: 'scale(.2)' }, { opacity: 0.92, transform: 'scale(1)' }], { duration: 16000, fill: 'forwards', easing: 'ease-in' });
+};
+const tiembla = () => cinta.querySelector('.ct-c').animate(Array.from({ length: 16 }, (_, i) => ({ transform: `translate(${rnd(-5, 5)}px, ${rnd(-3, 3)}px)`, color: i % 2 ? '#c8102e' : '#fff' })).concat({ transform: 'none' }), { duration: 2200 });
 const dron = () => {
   // La sombra de un dron cruza la pantalla, a una altura y en un sentido distintos cada vez
   const dir = Math.random() < 0.5 ? 1 : -1, y = rnd(-20, 40);
@@ -104,7 +119,7 @@ const volver = (l) => {
 };
 const remate = () => { const r = Math.random(); if (r < 0.45) sfx('estallido'); else if (r < 0.7) sfx('portazo'); }; // a veces no pasa nada: no saber asusta más
 const GOLPES = {
-  senal: () => statics(320), figura, dron, frase,
+  senal: () => statics(320), figura, dron, frase, silueta, crece, tiembla,
   vacio: () => { const l = level; cut(); tension(0, true); luego(rnd(4000, 9000), () => { volver(l); remate(); }); }, // silencio total, sin aviso
   paz: () => { const l = level; cut(); tension(0, true); document.body.classList.add('calma'); setScene('pajaros:.16 viento:.08'); luego(rnd(6000, 10000), () => { statics(500); volver(l); remate(); }); }, // de golpe todo está bien
   amago: () => { sfx('golpes'); luego(rnd(1500, 4000), golpe); }, // algo que no es nada, y recién ahí lo real
