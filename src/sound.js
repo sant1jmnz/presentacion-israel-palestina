@@ -4,7 +4,7 @@
 const REC = Object.fromEntries(Object.entries(import.meta.glob('./assets/audio/*.ogg', { eager: true, query: '?url', import: 'default' })).map(([p, u]) => [p.split('/').pop().split('.')[0], u]));
 const BOOST = 2; // las grabaciones vienen normalizadas a -18 LUFS
 
-let tape, ctx, master, noise, deafen, detune, impact, room, enabled = true;
+let tape, ctx, master, noise, deafen, detune, impact, room, war, enabled = true;
 const voices = {};
 const FADE = 1.8;
 
@@ -69,10 +69,19 @@ const around = (n, rate) => (o) => {
   lfo(p.pan, rate, 0.9); w.connect(p).connect(o); sample(n, w);
 };
 const far = (n, gain) => { const p = ctx.createStereoPanner(); p.pan.value = Math.random() * 1.8 - 0.9; p.connect(master); shot(n, p, gain, 0.9 + Math.random() * 0.15); };
+// Onda expansiva: cae de tono como el golpe en el pecho
+function boom(out, { from = 110, to = 30, dur = 2.2, gain = 1.4 }) {
+  const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.setValueAtTime(from, t); o.frequency.exponentialRampToValueAtTime(to, t + dur);
+  g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+  o.connect(g).connect(out); o.start(t); o.stop(t + dur + 0.05);
+}
+// Todo lo demás se aparta un instante: por contraste el golpe suena más grande que el máximo del parlante
+const duck = () => { const n = ctx.currentTime, g = master.gain; g.cancelScheduledValues(n); g.setValueAtTime(0.1, n); g.setTargetAtTime(0.9, n + 0.3, 0.6); };
 const bell = (out, f0, g = 0.28) => [1, 2, 2.4, 3, 4.2].forEach((m, i) => tone(out, { freq: f0 * m, dur: 5 - i * 0.7, gain: g / (i + 1), attack: 0.005 }));
 
 const MAKE = {
-  ...Object.fromEntries(['viento', 'mar', 'pajaros', 'campanas', 'maquina', 'telegrafo', 'reloj', 'multitud', 'barco', 'piedras', 'disparos', 'explosiones', 'aviones', 'sirena', 'helicoptero', 'topadora', 'latido', 'fuego'].map((n) => [n, (o) => sample(n, o)])),
+  ...Object.fromEntries(['viento', 'mar', 'pajaros', 'campanas', 'maquina', 'telegrafo', 'reloj', 'multitud', 'barco', 'piedras', 'aviones', 'sirena', 'helicoptero', 'topadora', 'latido', 'fuego'].map((n) => [n, (o) => sample(n, o)])),
   cajita: scatter(620, 1000, (o) => tone(o, { freq: CAJITA[cajitaN++ % CAJITA.length] * (1 + (Math.random() - 0.5) * 0.025), dur: 2, gain: 0.2, attack: 0.004 })), // nana desafinada: cada nota llega un poco tarde
   llanto: around('llanto', 0.07), sollozo: around('sollozo', 0.05), bebe: around('bebe', 0.11), bebe2: around('bebe2', 0.09), grito: around('grito', 0.13), respira: (o) => sample('respira', o),
   adhan: (o) => sample('adhan', o, 1),
@@ -86,6 +95,8 @@ const MAKE = {
   // Masas
   pasos: scatter(560, 720, (o) => shot('paso', o, 1.6, 0.9 + Math.random() * 0.2)),
   // Guerra
+  disparos: (o) => sample('disparos', o, 6),
+  explosiones: (o) => sample('explosiones', o, 6),
   dron: (o) => { const g = ctx.createGain(); g.gain.value = 0.14; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 620; f.Q.value = 3; g.connect(f).connect(o); [168, 171, 336].forEach((h) => { const s = ctx.createOscillator(); s.type = 'sawtooth'; s.frequency.value = h; s.connect(g); s.start(); }); },
   // Duelo
   grave: (o) => { [55, 82.4].forEach((h, i) => { const s = ctx.createOscillator(); s.frequency.value = h; const g = ctx.createGain(); g.gain.value = 0.26 / (i + 1); s.connect(g).connect(o); s.start(); }); },
@@ -102,11 +113,11 @@ export const SFX = {
   martillo: () => { burst(master, { dur: 0.13, type: 'bandpass', freq: 620, gain: 1, q: 2 }); tone(master, { freq: 120, dur: 0.4, gain: 0.5 }); },
   fosforo: () => burst(master, { dur: 0.5, type: 'highpass', freq: 2200, gain: 0.36, sweep: 5200 }),
   manos: () => shot('aplauso', master, 0.9),
-  estallido: () => { window.dispatchEvent(new Event('impacto')); shot('estallido', impact, 1, 0.8 + Math.random() * 0.3); shot('estallido', room, 0.5, 0.7); tone(impact, { freq: 36, dur: 1.8, gain: 1 }); const n = ctx.currentTime, f = deafen.frequency; f.cancelScheduledValues(n); f.setValueAtTime(260, n + 0.35); f.exponentialRampToValueAtTime(18000, n + 7); SFX.zumbido(); }, // después de la explosión no se oye bien
+  estallido: () => { window.dispatchEvent(new Event('impacto')); duck(); shot('estallido', impact, 2, 0.8 + Math.random() * 0.3); shot('estallido', impact, 1.6, 0.45); shot('estallido', room, 1, 0.7); boom(impact, {}); const n = ctx.currentTime, f = deafen.frequency; f.cancelScheduledValues(n); f.setValueAtTime(260, n + 0.35); f.exponentialRampToValueAtTime(18000, n + 7); SFX.zumbido(); }, // después de la explosión no se oye bien
   golpes: () => [0, 0.27, 0.55].forEach((d) => { const t = ctx.currentTime + d; burst(master, { t, dur: 0.1, type: 'bandpass', freq: 190, gain: 1, q: 1.5 }); tone(master, { t, freq: 72, dur: 0.25, gain: 0.5 }); }),
   hojas: () => burst(master, { dur: 0.7, type: 'bandpass', freq: 3400, sweep: 1800, gain: 0.1, q: 0.6 }),
   campana: () => bell(master, 330, 0.2),
-  disparo: () => { shot('tiro', impact, 1); shot('tiro', room, 0.7); }, // grabación real saturada, sin pasar por el compresor, con eco de la calle
+  disparo: () => { duck(); shot('tiro', impact, 2.2); shot('tiro', impact, 1.2, 0.55); shot('tiro', room, 1); boom(impact, { from: 160, to: 45, dur: 0.5, gain: 1.2 }); }, // grabación real saturada, sin pasar por el compresor, con eco de la calle
   estatica: () => burst(master, { dur: 0.14, type: 'highpass', freq: 2600, gain: 0.16 }),
   eas: () => [853, 960].forEach((freq) => tone(impact, { freq, dur: 6, gain: 0.13, type: 'square', attack: 0.005 })), // el tono real de las alertas de emergencia
   tecla: () => burst(master, { dur: 0.02, freq: 2400, gain: 0.1 }),
@@ -121,7 +132,7 @@ export const sfx = (n) => { if (ctx && enabled) SFX[n]?.(); };
 function voice(name) {
   if (voices[name]) return voices[name];
   const out = ctx.createGain(); out.gain.value = 0;
-  out.connect(master);
+  out.connect(name === 'disparos' || name === 'explosiones' ? war : master);
   const v = (voices[name] = { out, level: 0 });
   MAKE[name]?.(out, v);
   return v;
@@ -210,8 +221,14 @@ function start() {
   const comp = ctx.createDynamicsCompressor();
   deafen = ctx.createBiquadFilter(); deafen.frequency.value = 18000;
   detune = ctx.createConstantSource(); detune.offset.value = 0; detune.start();
-  master.connect(deafen).connect(comp).connect(ctx.destination);
-  impact = ctx.createGain(); impact.connect(ctx.destination);
+  const limit = ctx.createDynamicsCompressor(); limit.threshold.value = -1.5; limit.knee.value = 0; limit.ratio.value = 20; limit.attack.value = 0.001; limit.release.value = 0.1;
+  master.connect(comp).connect(deafen).connect(limit).connect(ctx.destination);
+  // Golpes y tiroteos esquivan el compresor, que los aplasta. El saturador los deja en el máximo sin distorsión digital
+  const trim = ctx.createGain(), clip = ctx.createWaveShaper(), low = ctx.createBiquadFilter(); trim.gain.value = 0.45;
+  clip.curve = Float32Array.from({ length: 1024 }, (_, i) => Math.tanh(((i / 511.5) - 1) * 3));
+  impact = ctx.createGain(); impact.connect(trim).connect(clip).connect(deafen);
+  low.type = 'lowshelf'; low.frequency.value = 130; low.gain.value = 9;
+  war = ctx.createGain(); war.gain.value = enabled ? 1 : 0; war.connect(low).connect(impact);
   room = ctx.createConvolver(); room.connect(impact);
   const ir = ctx.createBuffer(1, ctx.sampleRate * 2.4, ctx.sampleRate), d = ir.getChannelData(0);
   for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.45));
@@ -231,6 +248,6 @@ export function initSound(button) {
     e.stopPropagation();
     enabled = !enabled;
     button.classList.toggle('off', !enabled);
-    if (master) master.gain.setTargetAtTime(enabled ? 0.9 : 0, ctx.currentTime, 0.15);
+    if (master) { master.gain.setTargetAtTime(enabled ? 0.9 : 0, ctx.currentTime, 0.15); war.gain.value = enabled ? 1 : 0; }
   };
 }
