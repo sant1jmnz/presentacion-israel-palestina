@@ -269,12 +269,6 @@
   "license": "Public domain",
   "url": "https://commons.wikimedia.org/wiki/File:Heavy_breathing_3.ogg"
  },
- "susurro": {
-  "title": "Whispering-example.ogg",
-  "artist": "Mx. Granger",
-  "license": "CC0",
-  "url": "https://commons.wikimedia.org/wiki/File:Whispering-example.ogg"
- },
  "tiro": {
   "title": "Gunshots 8.ogg",
   "artist": "aradlaw",
@@ -376,5 +370,11 @@
   "artist": "PalFest from Palestine",
   "license": "CC BY 2.0",
   "url": "https://commons.wikimedia.org/wiki/File:Qalandia_Checkpoint_003.jpeg"
+ },
+ "susurro": {
+  "title": "Four_Voices_Whispering (invertido)",
+  "artist": "geoneo0",
+  "license": "CC0",
+  "url": "https://freesound.org/people/geoneo0/sounds/193814/"
  }
 }
