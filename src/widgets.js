@@ -592,16 +592,75 @@ function diez(slide) {
 }
 
 /* ---------- Quince segundos: de la calle al refugio ---------- */
+// Una silueta que corre: cadera en (0,0); muslos, pantorrillas y brazos giran por CSS.
+function corredor(parent, { s = 1, cls = '', t = 0.5 } = {}) {
+  const g = svgEl('g', { class: `qz-p ${cls}` }, parent);
+  const fig = svgEl('g', { transform: `scale(${s})` }, g);
+  const body = svgEl('g', { class: 'qz-bob', style: `--t:${t}s` }, fig);
+  const limb = (x, y, len, cls1, cls2, len2, back) => {
+    const a = svgEl('g', { transform: `translate(${x},${y})` }, body), r = svgEl('g', { class: cls1 }, a);
+    svgEl('line', { x2: 0, y2: len }, r);
+    const k = svgEl('g', { transform: `translate(0,${len})` }, r), r2 = svgEl('g', { class: cls2 }, k);
+    svgEl('line', { x2: 0, y2: len2 }, r2);
+    if (back) body.insertBefore(a, body.firstChild);
+  };
+  limb(0, 0, 30, 'qz-th', 'qz-sh', 30, true);           // pierna de atrás
+  limb(11, -40, 20, 'qz-ua', 'qz-fa', 18, true);        // brazo de atrás
+  svgEl('line', { x1: 0, y1: 0, x2: 11, y2: -42, class: 'qz-torso' }, body);
+  svgEl('circle', { cx: 15, cy: -55, r: 9.5 }, body);
+  limb(0, 0, 30, 'qz-th b', 'qz-sh b', 30, false);       // pierna de adelante
+  limb(11, -40, 20, 'qz-ua b', 'qz-fa b', 18, false);    // brazo de adelante
+  return g;
+}
+function buildQuince(svg) {
+  const Y = 262;
+  const back = svgEl('g', { class: 'qz-city' }, svg); // Sderot: bloques bajos, ventanas apagadas
+  [[0, 120, 130], [140, 70, 170], [230, 150, 110], [400, 95, 190], [510, 170, 130], [700, 110, 150], [830, 160, 120], [1010, 90, 180], [1120, 150, 140], [1290, 120, 110]]
+    .forEach(([x, w, h]) => {
+      svgEl('rect', { x, y: Y - h, width: w, height: h }, back);
+      for (let wy = Y - h + 18; wy < Y - 30; wy += 30) for (let wx = x + 14; wx < x + w - 20; wx += 28) svgEl('rect', { x: wx, y: wy, width: 12, height: 14, class: 'qz-win' }, back);
+    });
+  svgEl('line', { x1: 960, y1: Y, x2: 960, y2: Y - 210, class: 'qz-poste' }, back);
+  svgEl('path', { d: `M960 ${Y - 210} q0 -14 26 -14 h24`, class: 'qz-poste', fill: 'none' }, back);
+  svgEl('rect', { x: 0, y: Y, width: 1672, height: 38, class: 'qz-calle' }, svg);
+  svgEl('line', { x1: 0, y1: Y, x2: 1672, y2: Y, class: 'qz-cordon' }, svg);
+  const ref = svgEl('g', { class: 'qz-ref' }, svg); // refugio de hormigón, como los de las paradas de Sderot
+  svgEl('path', { d: `M1448 ${Y} V${Y - 150} H1660 V${Y} Z` }, ref);
+  svgEl('rect', { x: 1438, y: Y - 162, width: 232, height: 16 }, ref);
+  svgEl('rect', { x: 1476, y: Y - 110, width: 64, height: 110, class: 'qz-door' }, ref);
+  svgEl('text', { x: 1600, y: Y - 108, 'text-anchor': 'middle', class: 'qz-sign' }, ref).textContent = 'מקלט';
+  svgEl('text', { x: 1600, y: Y - 84, 'text-anchor': 'middle', class: 'qz-sign2' }, ref).textContent = 'REFUGIO';
+  const people = svgEl('g', {}, svg);
+  const otros = [
+    { s: 1.05, t: 0.42, x0: 760, at: 6.5 },
+    { s: 1, t: 0.46, x0: 560, at: 9 },
+    { s: 0.72, t: 0.36, x0: 520, at: 9.6, cls: 'qz-nene' },
+    { s: 0.98, t: 0.5, x0: 330, at: 12.8 },
+  ].map((o) => ({ ...o, g: corredor(people, o) }));
+  const me = corredor(people, { s: 1.1, t: 0.4, cls: 'qz-me' });
+  svgEl('text', { x: 16, y: -88, 'text-anchor': 'middle', class: 'qz-vos' }, me).textContent = 'VOS';
+  return { Y, otros, me };
+}
+let qz;
 function quince(slide) {
-  const num = slide.querySelector('.qz-t'), me = slide.querySelector('.qz-me'), end = slide.querySelector('.qz-end');
+  const num = slide.querySelector('.qz-t'), end = slide.querySelector('.qz-end');
+  qz ??= buildQuince(slide.querySelector('.qz-svg'));
+  const { Y, otros, me } = qz, DOOR = 1500;
   const X0 = 60, X1 = 1540;
   let x = X0, over = false;
-  end.classList.remove('on'); slide.classList.remove('hit', 'told'); num.textContent = '15'; me.setAttribute('cx', x);
-  every(slide, 620, () => { // corre sola y cada paso rinde menos: nunca llega
+  end.classList.remove('on'); slide.classList.remove('hit', 'told'); num.textContent = '15';
+  gsap.set(me, { x, y: Y - 64, opacity: 1 }); me.classList.remove('slow');
+  otros.forEach((o) => { // los demás llegan: entran por la puerta y desaparecen
+    gsap.set(o.g, { x: o.x0, y: Y - 64 * o.s, opacity: 1 });
+    track(slide, gsap.to(o.g, { x: DOOR, duration: o.at, delay: 0.6, ease: 'none' }));
+    track(slide, gsap.to(o.g, { opacity: 0, duration: 0.25, delay: 0.6 + o.at - 0.1 }));
+  });
+  every(slide, 620, () => { // corrés vos y cada paso rinde menos: nunca llegás
     if (over) return;
     x += (X1 - 150 - x) * 0.085;
-    gsap.to(me, { attr: { cx: x }, duration: 0.5, ease: 'none' });
+    gsap.to(me, { x, duration: 0.62, ease: 'none' });
   });
+  later(slide, 8600, () => me.classList.add('slow')); // ya no te dan las piernas
   const finish = () => {
     over = true; cut(); end.classList.add('on');
     window.dispatchEvent(new CustomEvent('tension', { detail: 0 })); // silencio total: el disparo sale de la nada

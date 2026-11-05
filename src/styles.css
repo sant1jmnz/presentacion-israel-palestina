@@ -466,10 +466,33 @@ body[data-era="ceniza"], body[data-era="setenta"], body[data-era="hoy"], body[da
 .qz-mid { display: flex; align-items: center; gap: 50px; }
 .qz-t { font-size: 300px; line-height: .9; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
 .qz-mid p { font-size: 48px; color: #fff; margin: 0; font-weight: 300; }
-.qz-svg { width: 100%; height: 150px; }
-.qz-svg line { stroke: rgba(255,255,255,.4); stroke-width: 3; stroke-dasharray: 14 12; }
-.qz-svg rect { fill: rgba(255,255,255,.2); stroke: #fff; stroke-width: 3; }
-.qz-svg circle { fill: #fff; }
+.qz-svg { width: 100%; height: 300px; overflow: visible; }
+.qz-city rect { fill: rgba(0,0,0,.38); }
+.qz-city .qz-win { fill: rgba(255,255,255,.05); }
+.qz-poste { stroke: rgba(0,0,0,.45); stroke-width: 6; }
+.qz-calle { fill: rgba(0,0,0,.45); }
+.qz-cordon { stroke: rgba(255,255,255,.35); stroke-width: 3; }
+.qz-ref path, .qz-ref rect { fill: #8d8a84; }
+.qz-ref .qz-door { fill: #0b0b0b; }
+.qz-sign { fill: #1a1a1a; font: 700 30px 'IBM Plex Sans', sans-serif; }
+.qz-sign2 { fill: #1a1a1a; font: 600 16px 'IBM Plex Sans', sans-serif; letter-spacing: 3px; }
+/* Siluetas que corren */
+.qz-p { --c: #8a7f7a; }
+.qz-p line { stroke: var(--c); stroke-width: 9; stroke-linecap: round; }
+.qz-p .qz-torso { stroke-width: 13; }
+.qz-p circle { fill: var(--c); }
+.qz-p.qz-me { --c: #fff; }
+.qz-vos { fill: #fff; font: 600 20px 'IBM Plex Sans', sans-serif; letter-spacing: 4px; }
+.qz-bob { animation: qz-bob calc(var(--t) / 2) ease-in-out infinite alternate; }
+.qz-bob :is(.qz-th, .qz-sh, .qz-ua, .qz-fa) { animation: var(--n) var(--t) linear infinite; }
+.qz-bob .b { animation-delay: calc(var(--t) / -2); }
+.qz-th { --n: qz-th; } .qz-sh { --n: qz-sh; } .qz-ua { --n: qz-ua; } .qz-fa { --n: qz-fa; }
+.qz-me.slow .qz-bob { --t: .62s; }
+@keyframes qz-bob { from { translate: 0 0; } to { translate: 0 -6px; } }
+@keyframes qz-th { 0%, 100% { rotate: -50deg; } 50% { rotate: 32deg; } }
+@keyframes qz-sh { 0%, 100% { rotate: 12deg; } 35% { rotate: 25deg; } 60% { rotate: 70deg; } 80% { rotate: 100deg; } }
+@keyframes qz-ua { 0%, 100% { rotate: 45deg; } 50% { rotate: -50deg; } }
+@keyframes qz-fa { 0%, 100% { rotate: -70deg; } 50% { rotate: -110deg; } }
 .reveal .qz-run { background: #fff; color: #000; border: 0; font-size: 44px; font-weight: 600; padding: 22px 60px; width: fit-content; cursor: crosshair; }
 .reveal .qz-run:disabled { opacity: .15; }
 .qz-end b { display: block; font-size: 56px; color: #fff; }
