@@ -1,10 +1,23 @@
 // Paisaje sonoro por capas. Cada <section data-sound="viento:.1 disparos:.5">
-// declara qué suena y a qué nivel: el ambiente va abajo y el protagonista arriba.
+// declara qué suena y a qué nivel. setScene ordena la mezcla: el sonido más fuerte que no es
+// ambiente es el protagonista y sube; los demás acompañan; el ambiente va abajo, en su propio bus.
 // Casi todo son grabaciones reales (scripts/fetch-audio.mjs); radio, dron y los pads son síntesis.
 const REC = Object.fromEntries(Object.entries(import.meta.glob('./assets/audio/*.ogg', { eager: true, query: '?url', import: 'default' })).map(([p, u]) => [p.split('/').pop().split('.')[0], u]));
 const BOOST = 2; // las grabaciones vienen normalizadas a -18 LUFS
 
-let tape, ctx, master, noise, deafen, detune, impact, room, war, enabled = true;
+let tape, ctx, master, amb, noise, deafen, detune, impact, room, war, enabled = true;
+// Mezcla con jerarquía: en cada momento hay un protagonista, apoyos y un lecho de ambiente.
+// El ambiente va por su propio bus, más bajo, y se aparta cuando pasa algo.
+const AMBIENTE = new Set(['viento', 'mar', 'pajaros', 'campanas', 'radio', 'dron', 'helicoptero', 'topadora', 'grave', 'pad', 'llama']);
+const NIVEL = { protagonista: 1.15, apoyo: 0.75, ambiente: 0.5 };
+const AMB = 0.8; // nivel de reposo del bus de ambiente
+// Lo que pasa de golpe empuja el ambiente hacia atrás un momento; los sonidos chicos no
+const APARTA = { estallido: 0.15, disparo: 0.1, portazo: 0.4, golpes: 0.4, eas: 0.3, dron: 0.45, pitido: 0.5, martillo: 0.5, sello: 0.6, fosforo: 0.6, manos: 0.5 };
+function aparta(hasta, dura = 1.6) {
+  if (!amb) return;
+  const n = ctx.currentTime, g = amb.gain;
+  g.cancelScheduledValues(n); g.setTargetAtTime(AMB * hasta, n, 0.04); g.setTargetAtTime(AMB, n + 0.25, dura / 3);
+}
 const voices = {};
 const FADE = 1.8;
 
@@ -132,12 +145,12 @@ export const SFX = {
   pitido: () => tone(master, { freq: 3900, dur: 7, gain: 0.13, attack: 0.02 }),
   portazo: () => { burst(master, { dur: 0.22, freq: 300, gain: 1 }); tone(master, { freq: 70, dur: 0.6, gain: 0.6 }); },
 };
-export const sfx = (n) => { if (ctx && enabled) SFX[n]?.(); };
+export const sfx = (n) => { if (ctx && enabled) { if (APARTA[n]) aparta(APARTA[n], n === 'estallido' ? 4 : 1.6); SFX[n]?.(); } };
 
 function voice(name) {
   if (voices[name]) return voices[name];
   const out = ctx.createGain(); out.gain.value = 0;
-  out.connect(name === 'disparos' || name === 'explosiones' ? war : master);
+  out.connect(name === 'disparos' || name === 'explosiones' ? war : AMBIENTE.has(name) ? amb : master);
   const v = (voices[name] = { out, level: 0 });
   MAKE[name]?.(out, v);
   return v;
@@ -147,6 +160,9 @@ export function setScene(spec = '') {
   current = spec;
   if (!ctx) return;
   const want = Object.fromEntries(spec.split(/\s+/).filter(Boolean).map((s) => { const [n, l] = s.split(':'); return [n, +l || 0.3]; }));
+  // El protagonista: lo más fuerte que no sea ambiente (si todo es ambiente, lo más fuerte del ambiente)
+  const orden = Object.keys(want).sort((a, b) => want[b] - want[a]), lead = orden.find((n) => !AMBIENTE.has(n)) ?? orden[0];
+  for (const n in want) want[n] *= n === lead ? NIVEL.protagonista : AMBIENTE.has(n) ? NIVEL.ambiente : NIVEL.apoyo;
   const t = ctx.currentTime;
   Object.keys(want).forEach(voice);
   Object.entries(voices).forEach(([n, v]) => {
@@ -161,7 +177,7 @@ let tension = 0, low, high, beat, climb, wobble, rough, clash;
 const applyTension = (ya) => {
   if (!low) return;
   const n = ctx.currentTime, set = (p, v) => p.setTargetAtTime(v, n, ya ? 0.01 : 1.5), t = tension;
-  set(low.gain, 0.3 * t ** 1.5); set(high.gain, 0.03 * t ** 2); set(beat.gain, 0.12 * t ** 2); set(climb.gain, 0.09 * t ** 2); set(rough.gain, 0.09 * t ** 2);
+  set(low.gain, 0.26 * t ** 1.5); set(high.gain, 0.025 * t ** 2); set(beat.gain, 0.1 * t ** 2); set(climb.gain, 0.08 * t ** 2); set(rough.gain, 0.075 * t ** 2);
   set(detune.offset, -140 * t); set(wobble.gain, 35 * t);
 };
 export function setTension(t, ya) { tension = t; applyTension(ya); tape?.gain.setTargetAtTime(t, ctx.currentTime, ya ? 0.01 : 1.5); }
@@ -177,7 +193,7 @@ function looming(hit) {
 const osc = (f, out, type = 'sine') => { const o = ctx.createOscillator(); o.type = type; o.frequency.value = f; o.connect(out); o.start(); return o; };
 function startTension() {
   [low, high, beat, climb, wobble, rough] = [0, 0, 0, 0, 0, 0].map(() => ctx.createGain());
-  [low, high, beat, climb, rough].forEach((g) => { g.gain.value = 0; g.connect(master); });
+  [low, high, beat, climb, rough].forEach((g) => { g.gain.value = 0; g.connect(amb); }); // la tensión es lecho: va con el ambiente
   [55, 57.7, 110.9].forEach((f) => osc(f, low, 'triangle'));
   osc(7350, high);
   clash = [233, 247, 329.6, 349.2].map((f) => osc(f, beat)); // segundas menores: chocan entre sí
@@ -224,6 +240,7 @@ function start() {
   ctx = new (window.AudioContext || window.webkitAudioContext)();
   noise = noiseBuffer();
   master = ctx.createGain(); master.gain.value = enabled ? 0.9 : 0;
+  amb = ctx.createGain(); amb.gain.value = AMB; amb.connect(master);
   const comp = ctx.createDynamicsCompressor();
   deafen = ctx.createBiquadFilter(); deafen.frequency.value = 18000;
   detune = ctx.createConstantSource(); detune.offset.value = 0; detune.start();
@@ -242,7 +259,7 @@ function start() {
   ['aplauso', 'estallido', 'paso', 'susurro', 'tiro'].forEach(load);
   startTension();
   // Siseo de cinta y zumbido de línea: crecen con la tensión
-  tape = ctx.createGain(); tape.gain.value = 0; tape.connect(master);
+  tape = ctx.createGain(); tape.gain.value = 0; tape.connect(amb);
   { const h = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); h.buffer = noise; h.loop = true; f.type = 'highpass'; f.frequency.value = 3200; g.gain.value = 0.03; h.connect(f).connect(g).connect(tape); h.start(); }
   tone(tape, { freq: 50, dur: 86400, gain: 0.035, type: 'sawtooth', attack: 2 });
   setScene(current);
