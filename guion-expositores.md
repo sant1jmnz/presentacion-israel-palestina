@@ -84,7 +84,7 @@ _Silencio._
 
 > Sin hablar. Dejá leer las dos versiones.
 
-**43. 74.594**
+**43. 74.618**
 
 Israel responde con bombardeos e invasión para destruir a Hamás. Te di dos números. Si uno te dolió más que el otro, preguntate por qué.
 

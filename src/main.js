@@ -76,7 +76,7 @@ function enter(slide) {
   document.getElementById('whisper').classList.remove('on');
   cinta.querySelector('.ct-a').textContent = `PLAY  CINTA ${pad(Reveal.getIndices(slide).h + 1)}`;
   let s = slide; while (s && !s.dataset.m) s = s.previousElementSibling;
-  gsap.to(muertos, { n: +(s?.dataset.m ?? 0), duration: 7, ease: 'none', onUpdate: () => { cinta.querySelector('.ct-c').textContent = muertos.n ? `${Math.round(muertos.n).toLocaleString('es-AR')} muertos desde 1948` : ''; } });
+  gsap.to(muertos, { n: +(s?.dataset.m ?? 0), duration: 7, ease: 'none', onUpdate: () => { cinta.querySelector('.ct-c').textContent = muertos.n ? `${Math.round(muertos.n).toLocaleString('es-AR')} muertos de 1948 ${s.dataset.f}` : ''; } });
   (slide.dataset.enter || '').split(/\s+/).filter(Boolean).forEach((spec) => {
     const [name, arg] = spec.split(':');
     (HOOKS[name] || HOOKS3D[name])?.(slide, arg);
